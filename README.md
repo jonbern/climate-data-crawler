@@ -16,11 +16,11 @@ services at varying levels of abstraction.
 ### CdoDataCrawler
 Implements the highest level of abstractions and will let you query a collection 
 of locations and get the most recent (or specified by year) yearly climate data available. You can
-specify the dataset (for instance: GHCND or GHCNDMS) and datatype (for instance MMNT (monthly mean minimum temperature)) 
+specify the dataset (for instance: `GHCND` or `GHCNDMS`) and datatype (for instance `MMNT` (monthly mean minimum temperature)) 
 for the queries query. 
 
-**Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
-providing the results (similar to CdoDataProbingQuery and CdoApiClient)**
+*Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
+providing the results (similar to CdoDataProbingQuery and CdoApiClient)*
 
 ### CdoDataProbingQuery
 Represents a data probing query against a single location and dataset/datatype within a specified probing interval (yearly).

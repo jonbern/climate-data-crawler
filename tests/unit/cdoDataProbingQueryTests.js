@@ -3,14 +3,14 @@ var should = require('should');
 var assert = require('assert');
 var sinon = require('sinon');
 var CdoApiClient = require('../../cdoApiClient');
-var CdoDataQuery = require('../../cdoDataQuery');
+var CdoDataProbingQuery = require('../../cdoDataProbingQuery');
 var Logger = require('../../helpers/logger');
 var HttpClient = require('../../helpers/httpClient');
 var events = require('events');
 var Timer = require('../../helpers/timer');
 var fs = require('fs');
 
-describe('CdoDataQuery', function(){
+describe('CdoDataProbingQuery', function(){
 
   var api;
   var eventEmitter;
@@ -50,7 +50,7 @@ describe('CdoDataQuery', function(){
   });
 
   var getInstance = function(locationId, dataset, datatypeid, startYear, endYear){
-    return new CdoDataQuery(
+    return new CdoDataProbingQuery(
       api, timer, {
         locationId: locationId,
         dataset: dataset,
@@ -194,7 +194,7 @@ describe('CdoDataQuery', function(){
   describe('#createInstance', function(){
     it('should not return null or undefined', function(){
       // arrange
-      var query = CdoDataQuery.createInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014, 2000);
+      var query = CdoDataProbingQuery.createInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014, 2000);
 
       // assert
       query.should.not.be.null;

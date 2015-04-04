@@ -3,7 +3,7 @@ var should = require('should');
 var sinon = require('sinon');
 var assert = require('assert');
 var CdoApiClient = require('../../cdoApiClient');
-var CdoDataQuery = require('../../cdoDataQuery');
+var CdoDataProbingQuery = require('../../cdoDataProbingQuery');
 var CdoDataCrawler = require('../../cdoDataCrawler');
 var resultsWriter = require('../../helpers/resultsWriter.js');
 var events = require('events');
@@ -122,7 +122,7 @@ describe('CdoDataCrawler', function(){
   };
 
   describe('#Run', function() {
-    it('should use CdoDataQuery.createInstance with expected parameters', function(){
+    it('should use CdoDataProbingQuery.createInstance with expected parameters', function(){
       // arrange
       var crawler = getInstance();
 

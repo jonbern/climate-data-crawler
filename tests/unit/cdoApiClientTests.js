@@ -444,5 +444,23 @@ describe('CdoClient', function(){
     })
   });
 
+  describe('#createInstance()', function(){
+    it('return not null', function(){
+      // arrange
+      var apiClient = CdoApiClient.createInstance();
+
+      // assert
+      apiClient.should.not.be.null;
+    })
+
+    it('return not null (eventEmitter and timer given)', function(){
+      // arrange
+      var apiClient = CdoApiClient.createInstance(new events.EventEmitter(), new Timer());
+
+      // assert
+      apiClient.should.not.be.null;
+    })
+  });
+
 });
 

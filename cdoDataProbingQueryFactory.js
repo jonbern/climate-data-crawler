@@ -1,6 +1,6 @@
 "use strict";
 var Timer = require('./helpers/timer');
-var CdoDataQuery = require('./cdoDataQuery');
+var CdoProbingDataQuery = require('./cdoDataProbingQuery');
 var CdoApiClient = require('./cdoApiClient');
 
 exports.createInstance = function(
@@ -14,7 +14,7 @@ exports.createInstance = function(
   var apiClient =
     new CdoApiClient(new HttpClient(), new Logger(), eventEmitter, timer);
 
-  return new CdoDataQuery(
+  return new CdoProbingDataQuery(
     apiClient, timer, {
       locationId: locationId,
       dataset: dataset,

@@ -1,7 +1,8 @@
 "use strict";
 var fs = require('fs');
+var Timer = require('./helpers/timer');
 
-function cdoApiClient(httpClient, logger, eventEmitter, timer) {
+function CdoApiClient(httpClient, logger, eventEmitter, timer) {
   var apiQueryPath;
   var queryResults;
 
@@ -77,4 +78,15 @@ function cdoApiClient(httpClient, logger, eventEmitter, timer) {
   };
 }
 
-module.exports = cdoApiClient;
+CdoApiClient.createInstance = function(eventEmitter, timer){
+  var events = require('events');
+  var HttpClient = require('./helpers/httpClient');
+  var Logger = require('./helpers/logger');
+
+  return new CdoApiClient(
+    new HttpClient(), new Logger(),
+    eventEmitter ? eventEmitter : new events.EventEmitter(),
+    timer ? timer : new Timer());
+};
+
+module.exports = CdoApiClient;

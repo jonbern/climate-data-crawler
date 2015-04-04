@@ -1,8 +1,8 @@
 "use strict";
 var resultsWriter = require('./helpers/resultsWriter.js');
 var Timer = require('./helpers/timer');
-var CdoDataQuery = require('./cdoDataQuery');
-var cdoDataQueryFactory = require('./cdoDataQueryFactory');
+var CdoDataProbingQuery = require('./cdoDataProbingQuery');
+var cdoDataProbingQueryFactory = require('./cdoDataProbingQueryFactory');
 
 function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, resultsWriter, timer,
                         dataset, datatype, locations, offset, count){
@@ -59,7 +59,7 @@ CdoDataCrawler.createInstance = function(
   locationsOffset, queryLimit){
 
   return new CdoDataCrawler(
-    cdoDataQueryFactory, dataProbingBounds, resultsWriter, new Timer(),
+    cdoDataProbingQueryFactory, dataProbingBounds, resultsWriter, new Timer(),
     dataset, datatype, locations, locationsOffset, queryLimit);
 };
 

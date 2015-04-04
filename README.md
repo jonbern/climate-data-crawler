@@ -137,17 +137,11 @@ dataQuery.run(function(queryResult){
 ```
 
 ### CdoApiClient
-TODO: Should make a createInstance method for the stuff below... too complicated now
 ```
 var CdoApiClient = require('./cdoApiClient');
-var Timer = require('./helpers/timer');
-var HttpClient = require('./helpers/httpClient');
-var Logger = require('./helpers/logger');
 var events = require('events');
-var timer = new Timer();
 
-var apiClient =
-    new CdoApiClient(new HttpClient(), new Logger(), new events.EventEmitter(), new Timer());
+var apiClient = CdoApiClient.createInstance();
     
 var parameters = {
   dataset: 'GHCNDMS',

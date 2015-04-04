@@ -2,7 +2,7 @@
 var CdoApiClient = require('./cdoApiClient');
 var Timer = require('./helpers/timer');
 
-function CdoDataQuery(ngdcApiClient, timer, params) {
+function CdoDataProbingQuery(cdoApiClient, timer, params) {
   var queryYear = params.startYear;
 
   var apiParameters = {
@@ -27,7 +27,7 @@ function CdoDataQuery(ngdcApiClient, timer, params) {
           timer.setTimeout(function(){
             apiParameters.startDate = queryYear + '-01-01';
             apiParameters.endDate = queryYear + '-12-31';
-            ngdcApiClient.query(apiParameters);
+            cdoApiClient.query(apiParameters);
           }, 1000);
         }
         else {
@@ -36,23 +36,20 @@ function CdoDataQuery(ngdcApiClient, timer, params) {
       }
     };
 
-    ngdcApiClient.getEventEmitter().on('done', onApiClientDone);
-    ngdcApiClient.query(apiParameters);
+    cdoApiClient.getEventEmitter().on('done', onApiClientDone);
+    cdoApiClient.query(apiParameters);
   }
 }
 
-CdoDataQuery.createInstance = function(
+CdoDataProbingQuery.createInstance = function(
   locationId, dataset, datatypeid, startYear, endYear){
   var events = require('events');
   var eventEmitter = new events.EventEmitter();
-  var HttpClient = require('./helpers/httpClient');
-  var Logger = require('./helpers/logger');
   var timer = new Timer();
 
-  var apiClient =
-    new CdoApiClient(new HttpClient(), new Logger(), eventEmitter, timer);
+  var apiClient = CdoApiClient.createInstance(eventEmitter, timer);
 
-  return new CdoDataQuery(
+  return new CdoDataProbingQuery(
     apiClient, timer, {
       locationId: locationId,
       dataset: dataset,
@@ -62,4 +59,4 @@ CdoDataQuery.createInstance = function(
     });
 };
 
-module.exports = CdoDataQuery;
+module.exports = CdoDataProbingQuery;

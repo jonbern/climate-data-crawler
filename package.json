@@ -1,0 +1,32 @@
+{
+  "name": "climate-data-crawler",
+  "version": "0.9.0",
+  "description": "Data Crawler for CDO (Climate Data Online) web services",
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonbern/climate-data-crawler.git"
+  },
+  "keywords": [
+    "climate",
+    "data",
+    "crawler"
+  ],
+  "author": "Jon Kristian Bernhardsen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jonbern/climate-data-crawler/issues"
+  },
+  "homepage": "https://github.com/jonbern/climate-data-crawler",
+  "dependencies": {
+    "mocha": "^2.2.1",
+    "should": "^5.2.0",
+    "sinon": "^1.14.1"
+  }
+}

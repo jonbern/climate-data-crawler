@@ -1,0 +1,86 @@
+[
+  {
+    "station": "GHCND:BR000083743",
+    "value": 268,
+    "attributes": "19,6",
+    "datatype": "MNTM",
+    "date": "2014-01-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-02-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-03-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-04-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-05-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-06-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-07-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-08-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-09-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-10-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-11-01T00:00:00"
+  },
+  {
+    "station": "GHCND:BR000083743",
+    "value": 278,
+    "attributes": "16,7",
+    "datatype": "MNTM",
+    "date": "2014-12-01T00:00:00"
+  }
+]

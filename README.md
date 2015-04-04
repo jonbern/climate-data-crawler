@@ -5,13 +5,12 @@ from [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web servi
 NCDC's CDO web services offer current- and historical climatic data from various datasets with data
 from the US and around the world. 
 
-The challenge with these web services is that they are very extensive and it is difficult to navigate 
-your way around to find out how to query the data you need. I created this crawler
-because I needed an easy way to query a lot of data, and using the CDO web services directly
-was very impractical. 
+The challenge with these web services is that they are very extensive and it is to find out how to 
+query the data you need. I created this crawler because I needed a way to query a lot of 
+data, and using the CDO web services directly was impractical. 
 
 ## Components
-The Climate Data Crawler consists of three main components which lets you query CDO web
+Climate Data Crawler consists of three main components which lets you query CDO web
 services at varying levels of abstraction. 
 
 ### CdoDataCrawler
@@ -20,8 +19,8 @@ of locations and get the most recent (or specified by year) yearly climate data 
 specify the dataset (for instance: GHCND or GHCNDMS) and datatype (for instance MMNT (monthly mean minimum temperature)) 
 for the queries query. 
 
-Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
-providing the results (similar to CdoDataProbingQuery and CdoApiClient)
+**Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
+providing the results (similar to CdoDataProbingQuery and CdoApiClient)**
 
 ### CdoDataProbingQuery
 Represents a data probing query against a single location and dataset/datatype within a specified probing interval (yearly).
@@ -62,7 +61,7 @@ To query the NCDC CDO Web Services you need a service token which can be request
 You need to register with your e-mail address and afterwards you will be sent a unique token which you can use to access their web services.
 
 ### apitoken.txt
-Once you have a valid CDO service token, you need to create a apitoken.txt in the climate-data-crawler directory and paste in your token. The 
+Once you have a valid CDO service token, you need to create a apitoken.txt in the climate-data-crawler directory and paste in your token. 
 Climate Data Crawler uses this file to read your token so that you can query the CDO web services.
 
 ### Run the crawler
@@ -160,7 +159,7 @@ GHCND - Global Historical Climatology Network-Daily dataset:
 GHCNDMS - Global Historical Climatology Network-Monthly dataset: 
 
 * MNTM - Monthly mean temperature
-* MMNT - Monthly Mean minimum temperature'
+* MMNT - Monthly Mean minimum temperature
 * MMXT - Monthly Mean maximum temperature
 * TPCP - Total precipitation
 

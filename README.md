@@ -1,4 +1,4 @@
-# Climatic Data Crawler - CDO (Climate Data Online) data crawler
+# Climate Data Crawler - CDO (Climate Data Online) data crawler
 This project is an API and CLI you can use to easily query data
 from [NCDC (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2).
 
@@ -9,8 +9,8 @@ is difficult to navigate your way around and find out how to get the data you ar
 I created this project because I needed a way to query historical climate data for locations
  around the world and found the core CDO web services very impractical for this purpose. 
 
-## CdoDataCrawler > CdoDataProbingQuery > CdoApiClient
-The Climatic Data Crawler consists of three main components which let's you query the CDO web
+## Components
+The Climatic Data Crawler consists of three main components which lets you query the CDO web
 services at a varying level of abstraction. 
 
 ### CdoDataCrawler
@@ -22,13 +22,9 @@ for the queries query.
 Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
 providing the results (similar to CdoDataProbingQuery and CdoApiClient)
 
-The CdoDataCrawler is implemented using a CdoDataProbingQuery for each location it queries.
-
 ### CdoDataProbingQuery
 Represents a data probing query against a single location and dataset/datatype within a specified probing interval (yearly).
 It will return data from the most recent year which has data for the specified location and dataset/datatype. 
-
-The CdoDataQuery object uses a CdoApiClient to interact with the CDO web services.
 
 ### CdoApiClient
 CdoApiClient represents the lowest level abstraction for querying CDO web services. CdoApiClient abstracts
@@ -45,48 +41,62 @@ You need git to clone the Climatic Data Crawler repository. You can get git from
 
 You also need node.js and its package manager (npm) installed. You can get them from: [http://nodejs.org/](http://nodejs.org/).
 
-### Clone Climatic Data Crawler
+### Clone Clima Data Crawler repository
 
-Clone the Climatic Data Crawler repository using git:
+Clone the Climate Data Crawler repository using git:
 
 ```
-git clone https://github.com/jonbernhardsen/climatic-data-crawler.git
-cd climatic-data-crawler
+git clone https://github.com/jonbern/climate-data-crawler.git
+cd climate-data-crawler
 ```
 
 ### Install dependencies
 
-Simply do: npm install
+Install npm dependencies
+```
+npm install
+```
 
-### Request CDO service token and create apitoken.txt:
+### Request web service token:
 To query the NCDC CDO Web Services you need a service token which can be requested here: [Request CDO web token](https://www.ncdc.noaa.gov/cdo-web/token).
 You need to register with your e-mail address and afterwards you will be sent a unique token which you can use to access their web services.
 
+### Create apitoken.txt
 Once you have a valid CDO service token, you need to create a apitoken.txt in the climatic-data-crawler directory and paste in your token. The 
 Climatic Data Crawler uses this file to read your token so that you can query the CDO web services.
 
-//## Climate Data Crawler npm package
-//You can also install Climate Data Crawler as a npm dependency to your project. This is particulary useful if want to implement your own 
-//crawler strategy, built on top of CdoProbingDataQuery calls or CdoApiClient directly. 
-
-## How to use
-
-### CdoDataCrawler
-CLI example:
+### Run the crawler
+Run the crawler, the example below will get the most recent data for the 100 first locations in CITIES.json using 2010 as 
+data probing stop year. 
 ```
 node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probingStopYear 2010 --offset 0 --count 100
 ```
 
+Use curl to get a list of locations to query. The example below will return the 1000 first cities in registered in CDO: 
+```
+curl -H "token:<your-token>" "http://www.ncdc.noaa.gov/cdo-web/api/v2/locations?locationcategoryid=city&sortfield=name&limit=1000"
+```
 
+## npm package
+You can also install Climate Data Crawler as a npm package. 
 
+```
+npm install climate-data-crawler --save
+```
 
-TODO!!! Talk about the locations file, the format and how to get one locations file
+This is particularly useful if you want to implement your own crawling strategy built on top of 
+CdoProbingDataQuery or CdoApiClient. 
 
+## Usage
 
+### CdoDataCrawler
+CLI:
+```
+node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probingStopYear 2010 --offset 0 --count 100
+```
+This will get the most recent data for the 100 first locations in CITIES.json using 2010 as data probing stop year. 
 
-
-
-node.js example:
+JS:
 ```
 var fs = require('fs');
 var CdoDataCrawler = require('./cdoDataCrawler');
@@ -94,27 +104,10 @@ var DataProbingBounds = require('./dataProbingBounds');
 
 var dataset = 'GHCNDMS'; // Global Historical Climatology Network-Monthly
 var datatype = 'MNTM'; // monthly mean temperature
-var locations = 
-  [
-    {
-      "id": "CITY:AS000002",
-      "name": "Brisbane, AS",
-      "datacoverage": 1,
-      "mindate": "1841-07-01",
-      "maxdate": "2015-02-03"
-    },
-    {
-      "id": "CITY:NO000001",
-      "name": "Bergen, NO",
-      "datacoverage": 1,
-      "mindate": "1938-01-01",
-      "maxdate": "2015-03-04"
-    }
-  ];
+var locations = JSON.parse(fs.readFileSync('CITIES.json', 'utf8')); // locations to query
 
-var dataProbingStopYear = 2010;
-var dataProbingBounds = new DataProbingBounds(dataProbingStopYear);
-var locations = JSON.parse(fs.readFileSync(options.locations, 'utf8'));
+var dataProbingStopYear = 2010; // data probing stop year
+var dataProbingBounds = new DataProbingBounds(dataProbingStopYear); // data probing algorithm
 
 var crawler = CdoDataCrawler.createInstance(dataset, datatype, locations, dataProbingBounds, 0, 100);
 crawler.run();
@@ -158,6 +151,27 @@ ngdcApiClient.getEventEmitter().on('done', function(result){
 ngdcApiClient.query(parameters);
 ```
 
-## Links
+## Resources
+
+### Example datasets and datatpyes
+GHCND - Global Historical Climatology Network-Daily dataset:
+
+* PRCP - Precipitation (tenths of mm)
+
+GHCNDMS - Global Historical Climatology Network-Monthly dataset: 
+
+* MNTM - monthly mean temperature
+* MMNT - Monthly Mean minimum temperature'
+* MMXT - Monthly Mean maximum temperature
+* TPCP - Total precipitation
+
+### Example location IDs
+* CITY:AS000002 - Brisbane, Australia
+* CITY:NO000001 - Bergen, Norway
+* CITY:BR000028 - Sao Paulo, Brazil
+* CITY:BR000023 - Rio de Janeiro, Brazil
+
+### Links
 [NCDC Climate Data Online](https://www.ncdc.noaa.gov/cdo-web)
+
 [Wikipedia: Global Historical Climatology Network](http://en.wikipedia.org/wiki/Global_Historical_Climatology_Network)

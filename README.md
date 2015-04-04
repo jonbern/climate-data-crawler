@@ -10,13 +10,13 @@ I created this project because I needed a way to query historical climate data f
  around the world and found the core CDO web services very impractical for this purpose. 
 
 ## Components
-The Climatic Data Crawler consists of three main components which lets you query the CDO web
-services at a varying level of abstraction. 
+The Climate Data Crawler consists of three main components which lets you query CDO web
+services at varying levels of abstraction. 
 
 ### CdoDataCrawler
 Implements the highest level of abstractions and will let you query a collection 
-of locations and get the most recent (or specified by year) yearly climatic data available. You can
-specify the dataset (for instance: GHCND or GHCNDMS) and datatype (for instance MMNT (Monthly Mean minimum temperature)) 
+of locations and get the most recent (or specified by year) yearly climate data available. You can
+specify the dataset (for instance: GHCND or GHCNDMS) and datatype (for instance MMNT (monthly mean minimum temperature)) 
 for the queries query. 
 
 Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
@@ -27,16 +27,15 @@ Represents a data probing query against a single location and dataset/datatype w
 It will return data from the most recent year which has data for the specified location and dataset/datatype. 
 
 ### CdoApiClient
-CdoApiClient represents the lowest level abstraction for querying CDO web services. CdoApiClient abstracts
-away the CDO web services' data paging functionality, which makes it challenging to query large recordsets 
-programmatically. The CdoApiClient will handle the paging for you and uses multiple requests to page through
-the data and return the complete resultset to you.
+CdoApiClient represents the lowest level of abstraction for querying CDO web services. CdoApiClient abstracts
+away the CDO web services' data paging behavior, which makes it challenging to query large record sets 
+programmatically. The CdoApiClient handles the paging for you and uses multiple requests to page through
+ data and return the complete result set to you.
 
 ## Getting started
-To get you started you can simply clone the Climatic Data Crawler repository and install the dependencies.
 
 ### Prerequisites
-You need git to clone the Climatic Data Crawler repository. You can get git from
+You need git to clone the Climate Data Crawler repository. You can get git from
 [http://git-scm.com/](http://git-scm.com/).
 
 You also need node.js and its package manager (npm) installed. You can get them from: [http://nodejs.org/](http://nodejs.org/).
@@ -57,16 +56,16 @@ Install npm dependencies
 npm install
 ```
 
-### Request web service token:
+### CDO web service token:
 To query the NCDC CDO Web Services you need a service token which can be requested here: [Request CDO web token](https://www.ncdc.noaa.gov/cdo-web/token).
 You need to register with your e-mail address and afterwards you will be sent a unique token which you can use to access their web services.
 
-### Create apitoken.txt
-Once you have a valid CDO service token, you need to create a apitoken.txt in the climatic-data-crawler directory and paste in your token. The 
-Climatic Data Crawler uses this file to read your token so that you can query the CDO web services.
+### apitoken.txt
+Once you have a valid CDO service token, you need to create a apitoken.txt in the climate-data-crawler directory and paste in your token. The 
+Climate Data Crawler uses this file to read your token so that you can query the CDO web services.
 
 ### Run the crawler
-Run the crawler, the example below will get the most recent data for the 100 first locations in CITIES.json using 2010 as 
+The example below will get the most recent data for the 100 first locations in CITIES.json using 2010 as 
 data probing stop year. 
 ```
 node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probingStopYear 2010 --offset 0 --count 100
@@ -83,9 +82,8 @@ You can also install Climate Data Crawler as a npm package.
 ```
 npm install climate-data-crawler --save
 ```
-
-This is particularly useful if you want to implement your own crawling strategy built on top of 
-CdoProbingDataQuery or CdoApiClient. 
+This is particularly useful if you need to incorporate Climate Data Crawler into your own project, for instance if you need to build
+custom crawling strategies built on top of CdoDataProbingQuery or CdoApiClient.
 
 ## Usage
 
@@ -107,7 +105,7 @@ var datatype = 'MNTM'; // monthly mean temperature
 var locations = JSON.parse(fs.readFileSync('CITIES.json', 'utf8')); // locations to query
 
 var dataProbingStopYear = 2010; // data probing stop year
-var dataProbingBounds = new DataProbingBounds(dataProbingStopYear); // data probing algorithm
+var dataProbingBounds = new DataProbingBounds(dataProbingStopYear); // data probing bounds algorithm
 
 var crawler = CdoDataCrawler.createInstance(dataset, datatype, locations, dataProbingBounds, 0, 100);
 crawler.run();
@@ -160,7 +158,7 @@ GHCND - Global Historical Climatology Network-Daily dataset:
 
 GHCNDMS - Global Historical Climatology Network-Monthly dataset: 
 
-* MNTM - monthly mean temperature
+* MNTM - Monthly mean temperature
 * MMNT - Monthly Mean minimum temperature'
 * MMXT - Monthly Mean maximum temperature
 * TPCP - Total precipitation

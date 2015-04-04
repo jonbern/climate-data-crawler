@@ -1,13 +1,14 @@
 # Climate Data Crawler - CDO (Climate Data Online) data crawler
-This project is an API and CLI you can use to easily query data
-from [NCDC (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2).
+This project is an API and CLI you can use to query data
+from [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2).
 
 NCDC's CDO web services offer current- and historical climatic data from various datasets with data
-from the US and around the world. The challenge these web services is that they are quite extensive and it
-is difficult to navigate your way around and find out how to get the data you are looking for.
+from the US and around the world. 
 
-I created this project because I needed a way to query historical climate data for locations
- around the world and found the core CDO web services very impractical for this purpose. 
+The challenge with these web services is that they are very extensive and it is difficult to navigate 
+your way around to find out how to query the data you need. I created this crawler
+because I needed an easy way to query a lot of data, and using the CDO web services directly
+was very impractical. 
 
 ## Components
 The Climate Data Crawler consists of three main components which lets you query CDO web
@@ -92,7 +93,7 @@ CLI:
 ```
 node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probingStopYear 2010 --offset 0 --count 100
 ```
-This will get the most recent data for the 100 first locations in CITIES.json using 2010 as data probing stop year. 
+This will get the most recent MNTM data for the 100 first locations in CITIES.json using 2010 as data probing stop year. 
 
 JS:
 ```
@@ -118,7 +119,7 @@ var cdoDataQueryFactory = require('./cdoDataProbingQuery');
 var startYear = 2014;
 var stopYear = 2010;
 
-// Query Brisbane in Australia for the most yearly and recent monthly mean temperature between 2014 and 2010 
+// Query Brisbane in Australia for the most recent monthly mean temperature between 2014 and 2010 
 var dataQuery = CdoDataProbingQuery.createInstance('CITY:AS000002', 'GHCNDMS', 'MNTM', startYear, stopYear);
 
 dataQuery.run(function(queryResult){

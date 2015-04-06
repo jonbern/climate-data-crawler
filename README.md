@@ -1,13 +1,12 @@
 # Climate Data Crawler - CDO (Climate Data Online) data crawler
-This project is an API and CLI you can use to query data
-from [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2).
+Climate Data Crawler is a library and node.js CLI (Command Line Interface) for querying 
+[NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2) 
+at a higher level of abstraction.
 
-NCDC's CDO web services offer current- and historical climatic data from various datasets with data
-from the US and around the world. 
-
-The challenge with these web services is that they are very extensive and it is to find out how to 
-query the data you need. I created this crawler because I needed a way to query a lot of 
-data, and using the CDO web services directly was impractical. 
+NCDC's CDO web services offer current- and historical climatic data from various data sets with data
+from the US and around the world. The challenge with these web services is that they are very extensive 
+and it is hard to find out how to get the data you need. I created this crawler because I needed a 
+way to query a lot of data and felt that using the CDO web services directly was impractical. 
 
 ## Components
 Climate Data Crawler consists of three main components which lets you query CDO web
@@ -16,21 +15,21 @@ services at varying levels of abstraction.
 ### CdoDataCrawler
 Implements the highest level of abstractions and will let you query a collection 
 of locations and get the most recent (or specified by year) yearly climate data available. You can
-specify the dataset (for instance: `GHCND` or `GHCNDMS`) and datatype (for instance `MMNT` (monthly mean minimum temperature)) 
-for the queries query. 
+specify the data set (for instance: `GHCND` or `GHCNDMS`) and datatype (for instance `MMNT` (monthly mean minimum temperature)) 
+for the queries. 
 
 *Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
 providing the results (similar to CdoDataProbingQuery and CdoApiClient)*
 
 ### CdoDataProbingQuery
-Represents a data probing query against a single location and dataset/datatype within a specified probing interval (yearly).
-It will return data from the most recent year which has data for the specified location and dataset/datatype. 
+Represents a data probing query against a single location and data set/data type within a specified probing interval (yearly).
+It will return data from the most recent year which has data for the specified location and data set/data type. 
 
 ### CdoApiClient
 CdoApiClient represents the lowest level of abstraction for querying CDO web services. CdoApiClient abstracts
-away the CDO web services' data paging behavior, which makes it challenging to query large record sets 
-programmatically. The CdoApiClient handles the paging for you and uses multiple requests to page through
- data and return the complete result set to you.
+away the data paging behavior of the CDO web services, which makes it challenging to query large record sets 
+programmatically. The CdoApiClient handles the paging for you by using multiple requests to page through
+ data and return the complete result set when finished.
 
 ## Getting started
 
@@ -57,11 +56,11 @@ npm install
 ```
 
 ### CDO web service token:
-To query the NCDC CDO Web Services you need a service token which can be requested here: [Request CDO web token](https://www.ncdc.noaa.gov/cdo-web/token).
-You need to register with your e-mail address and afterwards you will be sent a unique token which you can use to access their web services.
+To query the NCDC CDO Web Services you need a web service token which can be requested here: [Request CDO web token](https://www.ncdc.noaa.gov/cdo-web/token).
+You need to register with your e-mail address and afterwards you will be sent a unique token which you can use to access the web services.
 
 ### apitoken.txt
-Once you have a valid CDO service token, you need to create a apitoken.txt in the climate-data-crawler directory and paste in your token. 
+Once you have a valid CDO service token, you need to create an apitoken.txt file in the climate-data-crawler directory and paste in your token. 
 Climate Data Crawler uses this file to read your token so that you can query the CDO web services.
 
 ### Run the crawler
@@ -70,8 +69,9 @@ data probing stop year.
 ```
 node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probingStopYear 2010 --offset 0 --count 100
 ```
+The example above makes the assumption you have a 'CITIES.json' file in your climate-data-crawler directory. 
 
-Use curl to get a list of locations to query. The example below will return the 1000 first cities in registered in CDO: 
+Use curl to get a list of locations to query. The example below will return the 1000 first cities in CDO: 
 ```
 curl -H "token:<your-token>" "http://www.ncdc.noaa.gov/cdo-web/api/v2/locations?locationcategoryid=city&sortfield=name&limit=1000"
 ```
@@ -112,13 +112,13 @@ crawler.run();
 ```
 
 ### CdoDataProbingQuery
+This example will query the Brisbane location for the most recent monthly mean temperatures between 2014 and 2010: 
 ```
 var cdoDataQueryFactory = require('./cdoDataProbingQuery');
 
 var startYear = 2014;
 var stopYear = 2010;
 
-// Query Brisbane in Australia for the most recent monthly mean temperature between 2014 and 2010 
 var dataQuery = CdoDataProbingQuery.createInstance('CITY:AS000002', 'GHCNDMS', 'MNTM', startYear, stopYear);
 
 dataQuery.run(function(queryResult){
@@ -128,6 +128,7 @@ dataQuery.run(function(queryResult){
 ```
 
 ### CdoApiClient
+Use the CdoApiClient to get Brisbane's monthly mean temperatures between 01 January 2014 and 31 December 2014:
 ```
 var CdoApiClient = require('./cdoApiClient');
 var events = require('events');
@@ -151,12 +152,12 @@ ngdcApiClient.query(parameters);
 
 ## Resources
 
-### Example datasets and datatpyes
-GHCND - Global Historical Climatology Network-Daily dataset:
+### Example data sets and data types
+GHCND - Global Historical Climatology Network-Daily data set:
 
 * PRCP - Precipitation (tenths of mm)
 
-GHCNDMS - Global Historical Climatology Network-Monthly dataset: 
+GHCNDMS - Global Historical Climatology Network-Monthly data set: 
 
 * MNTM - Monthly mean temperature
 * MMNT - Monthly Mean minimum temperature

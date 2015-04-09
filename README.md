@@ -89,7 +89,9 @@ CLI:
 ```
 node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probingStopYear 2010 --offset 0 --count 100
 ```
-This will get the most recent MNTM data for the 100 first locations in CITIES.json using 2010 as data probing stop year. 
+This will get the most recent MNTM data for the 100 first locations in CITIES.json using 2010 as data probing stop year.
+
+Using the CLI, results will automatically be stored to disk (./data folder).
 
 JS:
 ```

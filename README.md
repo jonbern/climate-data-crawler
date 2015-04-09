@@ -18,9 +18,6 @@ of locations and get the most recent (or specified by year) yearly climate data 
 specify the data set (for instance: `GHCND` or `GHCNDMS`) and datatype (for instance `MMNT` (monthly mean minimum temperature)) 
 for the queries. 
 
-*Results are written to disk (./data/<dataset>-<datatype>.json). Future versions will support a callback 
-providing the results (similar to CdoDataProbingQuery and CdoApiClient)*
-
 ### CdoDataProbingQuery
 Represents a data probing query against a single location and data set/data type within a specified probing interval (yearly).
 It will return data from the most recent year which has data for the specified location and data set/data type. 
@@ -108,7 +105,10 @@ var dataProbingStopYear = 2010; // data probing stop year
 var dataProbingBounds = new DataProbingBounds(dataProbingStopYear); // data probing bounds algorithm
 
 var crawler = CdoDataCrawler.createInstance(dataset, datatype, locations, dataProbingBounds, 0, 100);
-crawler.run();
+
+crawler.run(function(results, locationsNoData){
+    // do something with the results and log which locations returned no data
+});
 ```
 
 ### CdoDataProbingQuery

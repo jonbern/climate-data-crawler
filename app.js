@@ -3,6 +3,7 @@ var fs = require('fs');
 var cliArgs = require('command-line-args');
 var CdoDataCrawler = require('./cdoDataCrawler');
 var DataProbingBounds = require('./dataProbingBounds');
+var resultsWriter = require('./helpers/resultsWriter.js');
 
 var cli = cliArgs([
   { name: "dataset", type: String, alias: 's', description: "NOAA CDO climate dataset" },
@@ -35,5 +36,11 @@ var crawler = CdoDataCrawler.createInstance(
   options.dataset, options.datatype, locations, dataProbingBounds,
   options.offset, options.count);
 
-console.log("locations to query: " + locations.length);
-crawler.run();
+crawler.run(function(results, locationsNoData){
+  var filenameBase = options.dataset + '-' + options.datatype + '-offset-'
+    + options.offset + '-count-' + options.count;
+
+  resultsWriter.write('data/' + filenameBase + '.json', results);
+  resultsWriter.write('data/' + filenameBase + '_nodata.json', locationsNoData);
+});
+

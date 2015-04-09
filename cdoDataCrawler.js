@@ -1,14 +1,18 @@
 "use strict";
-var resultsWriter = require('./helpers/resultsWriter.js');
+
 var Timer = require('./helpers/timer');
 var CdoDataProbingQuery = require('./cdoDataProbingQuery');
 var cdoDataProbingQueryFactory = require('./cdoDataProbingQueryFactory');
 
-function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, resultsWriter, timer,
+function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
                         dataset, datatype, locations, offset, count){
   var dataQuery;
   var queryLocationId;
   var index = offset;
+
+  var resultsDelegate = function(){};
+  var results = [];
+  var locationsNoData = [];
 
   if (locations.length < count){
     count = locations.length;
@@ -26,30 +30,36 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, resultsWriter, t
         dataset, datatype, probingBounds.startYear, probingBounds.stopYear);
 
       dataQuery.run(onQueryComplete);
-      console.log("crawl index: " + index);
       index++;
+    } else {
+      resultsDelegate(results, locationsNoData);
     }
   };
 
   var onQueryComplete = function(queryResult){
-    if (!queryResult){
-      console.log("no data. logging location: " + queryLocationId);
-      resultsWriter.write('data/' + dataset + '-' + datatype + '-nodata.json', queryLocationId);
-    }
-    else {
-      resultsWriter.write('data/' + dataset + '-' + datatype + '.json', queryResult);
+    if (queryResult){
+      results = results.concat(queryResult);
+    } else {
+      locationsNoData.push(queryLocationId);
     }
 
-    var progress = Math.round((index / count) * 100 * 100) / 100;
-    console.log('progress: ' + progress + '%');
+    reportProgress();
 
     timer.setTimeout(function(){
       queryNext();
     }, 2000);
   };
 
+  var reportProgress = function(){
+    var progress = Math.round((index / count) * 100 * 100) / 100;
+    console.log('progress: ' + progress + '%');
+  };
+
   // privileged functions
-  this.run = function(){
+  this.run = function(resultsCallback){
+    if (resultsCallback) {
+      resultsDelegate = resultsCallback;
+    }
     queryNext();
   }
 }
@@ -59,7 +69,7 @@ CdoDataCrawler.createInstance = function(
   locationsOffset, queryLimit){
 
   return new CdoDataCrawler(
-    cdoDataProbingQueryFactory, dataProbingBounds, resultsWriter, new Timer(),
+    cdoDataProbingQueryFactory, dataProbingBounds, new Timer(),
     dataset, datatype, locations, locationsOffset, queryLimit);
 };
 

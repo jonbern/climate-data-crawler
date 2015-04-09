@@ -5,9 +5,6 @@ var assert = require('assert');
 var CdoApiClient = require('../../cdoApiClient');
 var CdoDataProbingQuery = require('../../cdoDataProbingQuery');
 var CdoDataCrawler = require('../../cdoDataCrawler');
-var resultsWriter = require('../../helpers/resultsWriter.js');
-var events = require('events');
-var Logger = require('../../helpers/logger');
 var HttpClient = require('../../helpers/httpClient');
 var Timer = require('../../helpers/timer');
 
@@ -22,8 +19,6 @@ describe('CdoDataCrawler', function(){
   var datatype;
   var locations;
 
-  var queryResult;
-
   var locationsOffset;
   var queryLimit;
 
@@ -31,7 +26,7 @@ describe('CdoDataCrawler', function(){
   var probingStopYear;
 
   var dataProbingBounds = {
-    getProbingBounds: function(latestClimateDataDate){
+    getProbingBounds: function(){
       return {
         startYear: probingStartYear,
         stopYear: probingStopYear
@@ -46,28 +41,18 @@ describe('CdoDataCrawler', function(){
     locations = [
       {
         "id": "CITY:NL000001",
-        "name": "'s-Hertogenbosch, NL",
-        "datacoverage": 1,
-        "mindate": "1950-12-01",
         "maxdate": "2015-01-31"
       },
       {
         "id": "CITY:RS000001",
-        "name": "Abakan, RS",
-        "datacoverage": 0.9985,
-        "mindate": "1910-12-01",
         "maxdate": "2015-03-04"
       },
       {
         "id": "CITY:CD000001",
-        "name": "Abeche, CD",
-        "datacoverage": 0.9253,
-        "mindate": "1950-01-01",
         "maxdate": "1978-12-31"
       }
     ];
 
-    queryResult = ['1', '2', '3'];
     locationsOffset = 0;
     queryLimit = 500;
     probingStartYear = 2014;
@@ -77,8 +62,6 @@ describe('CdoDataCrawler', function(){
     sinon.stub(timer, 'setTimeout', function(callback, delay){
       callback();
     });
-
-    sinon.stub(resultsWriter, 'write');
 
     dataQuery = {
       run: function(queryCompleteCallback){
@@ -101,9 +84,6 @@ describe('CdoDataCrawler', function(){
     if (typeof timer.setTimeout.restore == 'function'){
       timer.setTimeout.restore();
     }
-    if (typeof resultsWriter.write.restore == 'function'){
-      resultsWriter.write.restore();
-    }
     if (typeof dataQueryFactory.createInstance.restore == 'function'){
       dataQueryFactory.createInstance.restore();
     }
@@ -113,16 +93,14 @@ describe('CdoDataCrawler', function(){
   });
 
   var getInstance = function(){
-    var crawler = new CdoDataCrawler(
+    return new CdoDataCrawler(
       dataQueryFactory, dataProbingBounds,
-      resultsWriter, timer, dataset, datatype, locations,
+      timer, dataset, datatype, locations,
       locationsOffset, queryLimit);
-
-    return crawler;
   };
 
   describe('#Run', function() {
-    it('should use CdoDataProbingQuery.createInstance with expected parameters', function(){
+    it('should use CdoDataProbingQuery.createInstance to instantiate dataProbingQuery', function(){
       // arrange
       var crawler = getInstance();
 
@@ -141,7 +119,6 @@ describe('CdoDataCrawler', function(){
     it('should invoke query by running dataQuery\'s run method', function(){
       // arrange
       sinon.spy(dataQuery, 'run');
-
       var crawler = getInstance();
 
       // act
@@ -151,13 +128,13 @@ describe('CdoDataCrawler', function(){
       assert.equal(dataQuery.run.calledOnce, true);
     });
 
-    it('when first query done, instantiate query for next location', function(){
+    it('should instantiate query for next location when first query done', function(){
       // arrange
       var crawler = getInstance();
 
       // act
       crawler.run();
-      simulateQueryCompleted(queryResult);
+      simulateQueryCompleted(null);
 
       // assert
       var call = dataQueryFactory.createInstance.getCall(1);
@@ -169,7 +146,7 @@ describe('CdoDataCrawler', function(){
 
     });
 
-    it('when query done, query next location until all locations queried', function(){
+    it('should query next location until all locations have been queried', function(){
       // arrange
       sinon.spy(dataQuery, 'run');
       var crawler = getInstance();
@@ -177,14 +154,14 @@ describe('CdoDataCrawler', function(){
       // act
       crawler.run();
       for (var i = 0; i < locations.length; i++){
-        simulateQueryCompleted(queryResult)
+        simulateQueryCompleted(null)
       }
 
       // assert
       assert.equal(dataQuery.run.callCount, locations.length);
     });
 
-    it('write progress to console', function(){
+    it('should write progress to console', function(){
       // arrange
       var crawler = getInstance();
 
@@ -195,7 +172,7 @@ describe('CdoDataCrawler', function(){
       // act
       crawler.run();
       for (var i = 0; i < locations.length; i++){
-        simulateQueryCompleted(queryResult)
+        simulateQueryCompleted(null)
       }
 
       // assert
@@ -206,7 +183,7 @@ describe('CdoDataCrawler', function(){
       }
     });
 
-    it('not run more queries than specified in queryLimit', function(){
+    it('should not exceed the number of queries specified by queryLimit', function(){
       // arrange
       sinon.spy(dataQuery, 'run');
       queryLimit = 2;
@@ -216,51 +193,16 @@ describe('CdoDataCrawler', function(){
       // act
       crawler.run();
       for (var i = 0; i < locations.length; i++){
-        simulateQueryCompleted(queryResult)
+        simulateQueryCompleted(null)
       }
 
       // assert
       assert.equal(dataQuery.run.callCount, queryLimit);
     });
 
-    it('should use locationsOffset as start index', function(){
+    it('should use locationsOffset as starting index', function(){
       // arrange
       locationsOffset = 1;
-      var crawler = getInstance();
-
-      // act
-      crawler.run();
-      simulateQueryCompleted(queryResult);
-
-      // assert
-      var call = dataQueryFactory.createInstance.getCall(0);
-      call.args[0].should.be.equal(locations[locationsOffset].id);
-    });
-
-    it('should write results using resultsWriter when query completed', function(){
-      // arrange
-      datatype = "TEST";
-      var expectedFilename = 'data/'+ dataset + '-' + datatype + '.json';
-
-      var crawler = getInstance();
-
-      // act
-      crawler.run();
-      simulateQueryCompleted(queryResult);
-
-      // assert
-      assert.equal(resultsWriter.write.calledOnce, true);
-
-      var call = resultsWriter.write.getCall(0);
-      call.args[0].should.be.equal(expectedFilename);
-      call.args[1].should.be.equal(queryResult);
-    });
-
-    it('should log locations without data using resultsWriter', function(){
-      // arrange
-      datatype = "TEST";
-      var expectedFilename = 'data/' +dataset + '-' + datatype + '-nodata.json';
-
       var crawler = getInstance();
 
       // act
@@ -268,26 +210,76 @@ describe('CdoDataCrawler', function(){
       simulateQueryCompleted(null);
 
       // assert
-      assert.equal(resultsWriter.write.calledOnce, true);
-
-      var call = resultsWriter.write.getCall(0);
-      call.args[0].should.be.equal(expectedFilename);
-      call.args[1].should.be.equal(locations[0].id);
+      var call = dataQueryFactory.createInstance.getCall(0);
+      call.args[0].should.be.equal(locations[locationsOffset].id);
     });
 
-    it('should pause at least one second before running next year', function(){
+    it('should wait at least one second before probing again', function(){
       // arrange
 
       var crawler = getInstance();
 
       // act
       crawler.run();
-      simulateQueryCompleted(queryResult);
+      simulateQueryCompleted();
 
       // assert
       var call = timer.setTimeout.getCall(0);
       call.args[1].should.be.greaterThan(1000);
       timer.setTimeout.calledOnce.should.equal(true);
+    });
+
+    it('should invoke resultsCallback when finished', function(){
+      // arrange
+      sinon.spy(dataQuery, 'run');
+
+      locations = [
+        {
+          "id": "CITY:NL000001",
+          "maxdate": "2015-01-31",
+          "dataToReturn": [1,2,3]
+        },
+        {
+          "id": "CITY:RS000001",
+          "maxdate": "2015-03-04",
+          "dataToReturn": [4,5,6]
+        },
+        {
+          "id": "CITY:CD000001",
+          "maxdate": "1978-12-31",
+          "dataToReturn": null
+        }
+      ];
+
+      var expectedCrawlResults = [1,2,3,4,5,6];
+      var expectedLocationsNoData = ["CITY:CD000001"];
+
+      var crawler = getInstance();
+
+      var resultsCallbackInvoked = false;
+      var actualCrawlResults = null;
+      var actualLocationsNoData = null;
+
+      var resultsCallback = function(crawlResults, crawlLocationsNoData){
+        resultsCallbackInvoked = true;
+        actualCrawlResults = crawlResults;
+        actualLocationsNoData = crawlLocationsNoData;
+      };
+
+      // act
+      crawler.run(resultsCallback);
+      simulateQueryCompleted(locations[0].dataToReturn);
+      simulateQueryCompleted(locations[1].dataToReturn);
+      simulateQueryCompleted(locations[2].dataToReturn);
+
+      // assert
+      assert.equal(resultsCallbackInvoked, true);
+      assert.equal(JSON.stringify(actualCrawlResults),
+        JSON.stringify(expectedCrawlResults));
+
+      assert.equal(JSON.stringify(actualLocationsNoData),
+        JSON.stringify(expectedLocationsNoData));
+
     });
 
   });

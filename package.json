@@ -1,6 +1,6 @@
 {
   "name": "climate-data-crawler",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Data Crawler for CDO (Climate Data Online) web services",
   "main": "app.js",
   "directories": {

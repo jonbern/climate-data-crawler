@@ -19,8 +19,8 @@ describe('CdoDataCrawler', function(){
   var datatype;
   var locations;
 
-  var locationsOffset;
-  var queryLimit;
+  var offset;
+  var count;
 
   var probingStartYear;
   var probingStopYear;
@@ -50,11 +50,23 @@ describe('CdoDataCrawler', function(){
       {
         "id": "CITY:CD000001",
         "maxdate": "1978-12-31"
+      },
+      {
+        "id": "CITY:NL000011",
+        "maxdate": "2015-01-31"
+      },
+      {
+        "id": "CITY:RS000021",
+        "maxdate": "2015-03-04"
+      },
+      {
+        "id": "CITY:CD000031",
+        "maxdate": "1978-12-31"
       }
     ];
 
-    locationsOffset = 0;
-    queryLimit = 500;
+    offset = 0;
+    count = 500;
     probingStartYear = 2014;
     probingStopYear = 2000;
 
@@ -96,7 +108,7 @@ describe('CdoDataCrawler', function(){
     return new CdoDataCrawler(
       dataQueryFactory, dataProbingBounds,
       timer, dataset, datatype, locations,
-      locationsOffset, queryLimit);
+      offset, count);
   };
 
   describe('#Run', function() {
@@ -177,7 +189,6 @@ describe('CdoDataCrawler', function(){
 
       // assert
       for (i = 0; i < locations.length; i++){
-        //simulateQueryCompleted(queryResult)
         var progress = calcProgress(i + 1);
         console.log.calledWith('progress: ' + progress + '%').should.equal(true)
       }
@@ -186,7 +197,7 @@ describe('CdoDataCrawler', function(){
     it('should not exceed the number of queries specified by queryLimit', function(){
       // arrange
       sinon.spy(dataQuery, 'run');
-      queryLimit = 2;
+      count = 2;
 
       var crawler = getInstance();
 
@@ -197,12 +208,12 @@ describe('CdoDataCrawler', function(){
       }
 
       // assert
-      assert.equal(dataQuery.run.callCount, queryLimit);
+      assert.equal(dataQuery.run.callCount, count);
     });
 
     it('should use locationsOffset as starting index', function(){
       // arrange
-      locationsOffset = 1;
+      offset = 1;
       var crawler = getInstance();
 
       // act
@@ -211,12 +222,11 @@ describe('CdoDataCrawler', function(){
 
       // assert
       var call = dataQueryFactory.createInstance.getCall(0);
-      call.args[0].should.be.equal(locations[locationsOffset].id);
+      call.args[0].should.be.equal(locations[offset].id);
     });
 
     it('should wait at least one second before probing again', function(){
       // arrange
-
       var crawler = getInstance();
 
       // act
@@ -231,8 +241,6 @@ describe('CdoDataCrawler', function(){
 
     it('should invoke resultsCallback when finished', function(){
       // arrange
-      sinon.spy(dataQuery, 'run');
-
       locations = [
         {
           "id": "CITY:NL000001",
@@ -280,6 +288,56 @@ describe('CdoDataCrawler', function(){
       assert.equal(JSON.stringify(actualLocationsNoData),
         JSON.stringify(expectedLocationsNoData));
 
+    });
+
+    it('should query \'count\' number of locations when offset > 0 (regression)', function(){
+      // arrange
+      sinon.spy(dataQuery, 'run');
+
+      offset = 3;
+      count = 3;
+
+      var crawler = getInstance();
+
+      // act
+      crawler.run();
+      for (var i = 0; i < count; i++){
+        simulateQueryCompleted();
+      }
+
+      // assert
+      assert.equal(dataQuery.run.callCount, count);
+      assert.equal(dataQueryFactory.createInstance.callCount, count);
+
+      for (var j = 0; j < count; j++){
+        var call = dataQueryFactory.createInstance.getCall(j);
+        assert.equal(call.args[0], locations[offset + j].id);
+      }
+
+    });
+
+    it('should write progress to console when offset > 0 (regression)', function(){
+      // arrange
+      offset = 2;
+      count = 3;
+
+      var crawler = getInstance();
+
+      var calcProgress = function(index){
+        return Math.round((index / count) * 100 * 100) / 100
+      };
+
+      // act
+      crawler.run();
+      for (var i = 0; i < count; i++){
+        simulateQueryCompleted(null)
+      }
+
+      // assert
+      for (i = 0; i < count; i++){
+        var progress = calcProgress(i + 1);
+        console.log.calledWith('progress: ' + progress + '%').should.equal(true)
+      }
     });
 
   });

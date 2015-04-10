@@ -8,7 +8,7 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
                         dataset, datatype, locations, offset, count){
   var dataQuery;
   var queryLocationId;
-  var index = offset;
+  var index = 0;
 
   var resultsDelegate = function(){};
   var results = [];
@@ -21,7 +21,7 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
   // private functions
   var queryNext = function(){
     if (index < locations.length && index < count) {
-      var queryLocation = locations[index];
+      var queryLocation = locations[index + offset];
       queryLocationId = queryLocation.id;
       var probingBounds =
         dataProbingBounds.getProbingBounds(queryLocation.maxdate);
@@ -30,6 +30,7 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
         dataset, datatype, probingBounds.startYear, probingBounds.stopYear);
 
       dataQuery.run(onQueryComplete);
+
       index++;
     } else {
       resultsDelegate(results, locationsNoData);

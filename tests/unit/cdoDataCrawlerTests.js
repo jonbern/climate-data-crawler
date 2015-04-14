@@ -340,6 +340,38 @@ describe('CdoDataCrawler', function(){
       }
     });
 
+    it('should not go out of bounds on locations', function(){
+      // arrange
+      offset = 2;
+      count = 3;
+
+      locations = [
+        {
+          "id": "CITY:NL000001",
+          "maxdate": "2015-01-31"
+        },
+        {
+          "id": "CITY:RS000001",
+          "maxdate": "2015-03-04"
+        },
+        {
+          "id": "CITY:CD000001",
+          "maxdate": "1978-12-31"
+        }
+      ];
+
+      var crawler = getInstance();
+
+      // act
+      crawler.run();
+
+      // assert
+      assert.doesNotThrow(function(){
+        for (var i = 0; i < locations.length; i++){
+          simulateQueryCompleted(null)
+        }
+      });
+    });
   });
 
 });

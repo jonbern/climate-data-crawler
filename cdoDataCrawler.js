@@ -20,7 +20,7 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
 
   // private functions
   var queryNext = function(){
-    if (index < locations.length && index < count) {
+    if (index < (locations.length - offset) && index < count) {
       var queryLocation = locations[index + offset];
       queryLocationId = queryLocation.id;
       var probingBounds =

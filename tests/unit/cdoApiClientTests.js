@@ -1,6 +1,7 @@
 "use strict";
 var should = require('should');
 var sinon = require('sinon');
+var assert = require('assert');
 var CdoApiClient = require('../../cdoApiClient');
 var events = require('events');
 var Logger = require('../../helpers/logger');
@@ -11,22 +12,25 @@ var fs = require("fs");
 describe('CdoClient', function(){
 
   var eventEmitter;
-  var queryParams;
   var logger;
   var httpClient;
   var timer;
   var apiKey = "123-API-KEY";
 
+  var dataset;
+  var datatypeid;
+  var locationId;
+  var startDate;
+  var endDate;
+
   beforeEach(function(){
     eventEmitter = new events.EventEmitter();
 
-    queryParams = {
-      dataset: 'GHCND',
-      datatypeid: 'PRCP',
-      locationId: 'CITY:AS000002',
-      startDate: '2012-01-01',
-      endDate: '2012-06-01'
-    };
+    dataset = 'GHCND';
+    datatypeid = 'PRCP';
+    locationId = 'CITY:AS000002';
+    startDate = '2012-01-01';
+    endDate = '2012-06-01';
 
     logger = new Logger();
     sinon.stub(logger, 'error');
@@ -64,10 +68,9 @@ describe('CdoClient', function(){
   });
 
   var getInstance = function(){
-    var client = new CdoApiClient(
-      httpClient, logger, eventEmitter, timer);
-
-    return client;
+    return new CdoApiClient(
+      httpClient, logger, eventEmitter, timer,
+      dataset, datatypeid, locationId, startDate, endDate);
   };
 
   describe('#invoke', function() {
@@ -80,8 +83,8 @@ describe('CdoClient', function(){
       var expected2 = '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000&offset=7';
 
       // act
-      client.query(queryParams, 1);
-      client.query(queryParams, 7);
+      client.query(1);
+      client.query(7);
 
       // assert
       httpClient.request.getCall(0).args[0].path
@@ -93,7 +96,7 @@ describe('CdoClient', function(){
 
     it('path should use configuration\'s dataset value', function() {
       // arrange
-      queryParams.dataset = "mydataset";
+      dataset = "mydataset";
 
       sinon.stub(httpClient, 'request');
       var client = getInstance();
@@ -108,7 +111,7 @@ describe('CdoClient', function(){
         + '&offset=1';
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       httpClient.request.getCall(0).args[0].path
@@ -117,7 +120,7 @@ describe('CdoClient', function(){
 
     it('path should use configuration\'s locationid value', function() {
       // arrange
-      queryParams.locationId = "AO:MYCITY";
+      locationId = "AO:MYCITY";
 
       sinon.stub(httpClient, 'request');
       var client = getInstance();
@@ -132,7 +135,7 @@ describe('CdoClient', function(){
         + '&offset=1';
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       httpClient.request.getCall(0).args[0].path
@@ -141,7 +144,7 @@ describe('CdoClient', function(){
 
     it('should use configuration\'s enddate value', function() {
       // arrange
-      queryParams.endDate = "23-10-1983";
+      endDate = "23-10-1983";
 
       sinon.stub(httpClient, 'request');
       var client = getInstance();
@@ -156,7 +159,7 @@ describe('CdoClient', function(){
         + '&offset=1';
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       httpClient.request.getCall(0).args[0].path
@@ -165,7 +168,7 @@ describe('CdoClient', function(){
 
     it('should use configuration\'s startdate value', function() {
       // arrange
-      queryParams.startDate = "23-10-1983";
+      startDate = "23-10-1983";
 
       sinon.stub(httpClient, 'request');
       var client = getInstance();
@@ -180,7 +183,7 @@ describe('CdoClient', function(){
         + '&offset=1';
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       httpClient.request.getCall(0).args[0].path
@@ -193,7 +196,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       httpClient.request.called.should.be.true;
@@ -209,7 +212,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       logger.error.called.should.be.true;
@@ -239,7 +242,7 @@ describe('CdoClient', function(){
       sinon.spy(client, 'query');
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       var queryPath = '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000';
@@ -280,7 +283,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       timer.setTimeout.getCall(0).args[1].should.be.greaterThan(1000);
@@ -308,7 +311,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       eventEmitter.emit.calledWith('done').should.be.true;
@@ -316,7 +319,7 @@ describe('CdoClient', function(){
 
     it('done event should contain result of query', function(){
       // arrange
-      var apiResult = {
+      var simulatedApiResult = {
         "results": [
           {
             "id": "CITY:AE000002",
@@ -342,19 +345,25 @@ describe('CdoClient', function(){
         }
       };
       var stubRequest = function(options, successCallback, errorCallback) {
-        successCallback(JSON.stringify(apiResult));
+        successCallback(JSON.stringify(simulatedApiResult));
       };
       sinon.stub(httpClient, 'request', stubRequest);
       var spy = sinon.spy(eventEmitter, 'emit');
 
+      var actualResults = null;
+      var resultCallback = function(result){
+        actualResults = result;
+      };
+
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query(1, resultCallback);
 
       // assert
-      spy.calledWith('done', apiResult.results)
-        .should.be.true;
+      assert.equal(spy.calledWith('done', simulatedApiResult.results), true);
+      assert.equal(JSON.stringify(actualResults),
+        JSON.stringify(simulatedApiResult.results));
     });
 
     it('should read api-token from file', function(){
@@ -362,7 +371,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       var call = fs.readFileSync.getCall(0);
@@ -382,7 +391,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       logger.info.called.should.be.true;
@@ -407,7 +416,7 @@ describe('CdoClient', function(){
       };
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       httpClient.request.calledWith(expectedOptions)
@@ -426,7 +435,7 @@ describe('CdoClient', function(){
       var client = getInstance();
 
       // act
-      client.query(queryParams);
+      client.query();
 
       // assert
       spy.calledWith('done', null).should.be.true;
@@ -451,7 +460,7 @@ describe('CdoClient', function(){
 
       // assert
       apiClient.should.not.be.null;
-    })
+    });
 
     it('return not null (eventEmitter and timer given)', function(){
       // arrange

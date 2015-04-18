@@ -17,6 +17,15 @@ describe('CdoDataProbingQuery', function(){
   var logger;
   var httpClient;
   var timer;
+  var apiClientFactory;
+
+  var dataset;
+  var datatypeid;
+  var locationId;
+  var startYear;
+  var endYear;
+  var startDate;
+  var endDate;
 
   beforeEach(function(){
     eventEmitter = new events.EventEmitter();
@@ -35,6 +44,20 @@ describe('CdoDataProbingQuery', function(){
 
     api = new CdoApiClient(
       httpClient, logger, eventEmitter,timer);
+
+    apiClientFactory = {
+      createInstance: function(){
+        return api;
+      }
+    };
+
+    dataset = 'GHCNDMS';
+    datatypeid = 'MMNT';
+    locationId = 'CITY:BR000023';
+    startYear = 2014;
+    endYear = 2014;
+    startDate = startYear + '-01-01';
+    endDate = endYear + '-12-31';
   });
 
   afterEach(function(){
@@ -49,158 +72,184 @@ describe('CdoDataProbingQuery', function(){
     }
   });
 
-  var getInstance = function(locationId, dataset, datatypeid, startYear, endYear){
+  var getInstance = function(){
     return new CdoDataProbingQuery(
-      api, timer, {
-        locationId: locationId,
-        dataset: dataset,
-        datatypeid: datatypeid,
-        startYear: startYear,
-        endYear: endYear
-      });
+      apiClientFactory, timer,
+      locationId, dataset, datatypeid, startYear, endYear);
   };
 
   describe('#run', function(){
-    it('should call apiClient\'s query method', function() {
+    it('should call apiClientFactory with expected parameters', function() {
+      // arrange
+      sinon.stub(api, 'query');
+      sinon.spy(apiClientFactory, 'createInstance');
+
+      var query = getInstance();
+
+      // act
+      query.run();
+
+      // assert
+     var isCalledWithParameters = apiClientFactory.createInstance.calledWith(
+        locationId, dataset, datatypeid, startDate, endDate);
+
+      assert.equal(isCalledWithParameters, true);
+    });
+
+    it('should invoke apiClient\'s query method', function() {
       // arrange
       sinon.stub(api, 'query');
 
-      var params = {
-            dataset: 'GHCNDMS',
-            datatypeid: 'MMNT',
-            locationId: 'CITY:BR000023',
-            startDate: '2014-01-01',
-            endDate: '2014-12-31'
-      };
-
-      var crawler = getInstance(
-        params.locationId, params.dataset,
-        params.datatypeid, 2014);
+      var query = getInstance();
 
       // act
-      crawler.run();
+      query.run();
 
       // assert
-      api.query.calledWith(params)
-        .should.be.true;
+      assert.equal(api.query.called, true);
     });
 
-    it('should call onRunCompleteCallback with results when receiving data from api client', function(){
-      // arrange
-      var dataset = fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'});
+    describe('#onQueryCompleteCallback', function(){
+      it('should call onQueryCompleteCallback with results when receiving data from api client', function(){
+        // arrange
+        var expectedRunResults = fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'});
+        var actualRunResults = null;
 
-      sinon.stub(api, 'query', function(){
-        eventEmitter.emit('done', dataset);
+        sinon.stub(api, 'query', function(onApiCallComplete){
+          onApiCallComplete(expectedRunResults);
+        });
+
+        var query = getInstance();
+
+        // act
+        query.run(function(results){
+          actualRunResults = results;
+        });
+
+        // assert
+        assert.notEqual(actualRunResults, null);
+        assert.equal(actualRunResults, expectedRunResults);
       });
 
-      var runResults;
-      var onRunComplete = function(results){
-        runResults = results;
-      };
+      it('should be possible to call run without specifying onQueryCompleteCallback', function(){
+        // arrange
+        var runResults = fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'});
 
-      // act
-      var query = getInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014);
-      query.run(onRunComplete);
+        sinon.stub(api, 'query', function(onApiCallComplete){
+          onApiCallComplete(runResults);
+        });
 
-      // assert
-      assert.notEqual(runResults, null);
-      runResults.should.be.equal(dataset);
+        var query = getInstance();
+
+        // act + assert
+        assert.doesNotThrow(function(){
+          query.run();
+        });
+      });
+
     });
 
-    it('should be possible to call run without specifying onRunCompletecallback', function(){
-      // arrange
-      var dataset = fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'});
+    describe('api returns no data for the current year\'s query', function(){
+      it('should query each year until it reaches endYear to probe for data', function(){
+        // arrange
+        sinon.stub(api, 'query', function(onApiCallComplete){
+          onApiCallComplete(null);
+        });
 
-      sinon.stub(api, 'query', function(){
-        eventEmitter.emit('done', dataset);
-      });
+        sinon.spy(apiClientFactory, 'createInstance');
 
-      // act
-      var query = getInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014);
+        startYear = 2014;
+        endYear = 2000;
 
-      // assert
-      assert.doesNotThrow(function(){
+        var expectedQueryCount = (startYear - endYear) + 1;
+
+        var query = getInstance();
+
+        // act
         query.run();
-      });
-    });
 
-    it('should try one year earlier (until endDate) if no data from server', function(){
-      // arrange
-      sinon.stub(api, 'query', function(){
-        eventEmitter.emit('done', null);
-      });
+        // assert
+        api.query.callCount.should.be.equal(expectedQueryCount);
 
-      var startYear = 2014;
-      var endYear = 2000;
-      var queryCount = (startYear - endYear) + 1;
+        for (var i = 0; i < expectedQueryCount; i++){
+          var currentQueryYear = startYear - i;
+          var expectedStartDate = currentQueryYear + '-01-01';
+          var expectedEndDate = currentQueryYear + '-12-31';
 
-      // act
-      var query = getInstance(
-        'CITY:BR000023', 'GHCNDMS', 'MMNT', startYear, endYear);
-      query.run();
+          var isCalledWithParameters = apiClientFactory.createInstance.calledWith(
+            locationId, dataset, datatypeid, expectedStartDate, expectedEndDate);
 
-      // assert
-      var finalCallParameters = {
-        dataset: 'GHCNDMS',
-        datatypeid: 'MMNT',
-        locationId: 'CITY:BR000023',
-        startDate: endYear + '-01-01',
-        endDate: endYear + '-12-31'
-      };
-
-      api.query.calledWith(finalCallParameters).should.be.true;
-      api.query.callCount.should.be.equal(queryCount);
-    });
-
-    it('should still query onRunCompleteCallback even if there was no data returned from data until 1983', function(){
-      // arrange
-      sinon.stub(api, 'query', function(){
-        eventEmitter.emit('done', null);
+          assert.equal(isCalledWithParameters, true);
+        }
       });
 
-      var runResults;
-      var callbackCalled = false;
-      var onRunComplete = function(results){
-        runResults = results;
-        callbackCalled = true;
-      };
+      describe('#onRunCompleteCallback', function(){
+        it('should invoke onRunCompleteCallback when no data until endYear', function(){
+          // arrange
+          sinon.stub(api, 'query', function(onApiCallComplete){
+            onApiCallComplete(null);
+          });
 
-      // act
-      var query = getInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014);
-      query.run(onRunComplete);
+          var onRunCompleteCallbackCalled = false;
 
-      // assert
-      callbackCalled.should.be.true;
-      assert.equal(runResults, null);
+          startYear = 2014;
+          endYear = 2000;
 
-    });
+          var query = getInstance();
 
-    it('should pause shortly before doing next query if current year does not have results', function() {
-      // arrange
-      sinon.stub(api, 'query', function(){
-        eventEmitter.emit('done', null);
+          // act
+          query.run(function(results){
+            onRunCompleteCallbackCalled = true;
+          });
+
+          // assert
+          assert.equal(onRunCompleteCallbackCalled, true);
+        });
+
       });
 
-      // act
-      var query = getInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014, 2000);
-      query.run();
+      it('should pause shortly before probing next year', function() {
+        // arrange
+        sinon.stub(api, 'query', function(onApiCallComplete){
+          onApiCallComplete(null);
+        });
 
-      // assert
-      timer.setTimeout.getCall(0).args[1].should.be.greaterThan(500);
+        startYear = 2014;
+        endYear = 2000;
+        var expectedCallCount = startYear - endYear;
+        var actualCallCount = 0;
+
+        var actualDelay = null;
+
+        timer.setTimeout.restore();
+        sinon.stub(timer, 'setTimeout', function(callback, delay){
+          actualDelay = delay;
+          actualCallCount++;
+          callback();
+        });
+
+        var query = getInstance();
+
+        // act
+        query.run();
+
+        // assert
+        assert.equal(actualDelay, 1000);
+        assert.equal(actualCallCount, expectedCallCount);
+      });
+
     });
 
   });
 
   describe('#createInstance', function(){
-    it('should not return null or undefined', function(){
+    it('should not return null', function(){
       // arrange
       var query = CdoDataProbingQuery.createInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014, 2000);
 
       // assert
-      query.should.not.be.null;
-      query.should.not.be.undefined;
+      assert.notEqual(query, null);
     });
-
   });
 
 });

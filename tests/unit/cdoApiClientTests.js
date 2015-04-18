@@ -330,20 +330,7 @@ describe('CdoClient', function(){
         // arrange
         var expectedResults = {
           "results": [
-            {
-              "id": "CITY:AE000002",
-              "name": "Ajman, AE",
-              "datacoverage": 0.6862,
-              "mindate": "1944-03-01",
-              "maxdate": "2015-01-01"
-            },
-            {
-              "id": "CITY:AE000003",
-              "name": "Dubai, AE",
-              "datacoverage": 0.6862,
-              "mindate": "1944-03-01",
-              "maxdate": "2015-01-01"
-            }
+            {"example": [1,2,3] }, { "example": [4,5,6]}
           ],
           'metadata': {
             'resultset': {
@@ -390,24 +377,11 @@ describe('CdoClient', function(){
     });
 
     describe('result callback', function(){
-      it('done event should contain result of query', function(){
+      it('should return api result', function(){
         // arrange
         var expectedResults = {
           "results": [
-            {
-              "id": "CITY:AE000002",
-              "name": "Ajman, AE",
-              "datacoverage": 0.6862,
-              "mindate": "1944-03-01",
-              "maxdate": "2015-01-01"
-            },
-            {
-              "id": "CITY:AE000003",
-              "name": "Dubai, AE",
-              "datacoverage": 0.6862,
-              "mindate": "1944-03-01",
-              "maxdate": "2015-01-01"
-            }
+            {"example": [1,2,3] }, { "example": [4,5,6]}
           ],
           'metadata': {
             'resultset': {
@@ -432,7 +406,7 @@ describe('CdoClient', function(){
 
         // act
         //client.query(0, resultCallback);
-        client.query(0, resultCallback);
+        client.query(resultCallback);
 
         // assert
         assert.equal(JSON.stringify(actualResults),
@@ -489,19 +463,39 @@ describe('CdoClient', function(){
   describe('#createInstance()', function(){
     it('return not null', function(){
       // arrange
-      var apiClient = CdoApiClient.createInstance();
+      var apiClient = CdoApiClient.createInstance(
+        dataset, datatypeid, locationId, startDate, endDate);
 
       // assert
       apiClient.should.not.be.null;
     });
 
-    it('return not null (eventEmitter and timer given)', function(){
+    it('should use the factory arguments and pass to httpClient', function() {
       // arrange
-      var apiClient = CdoApiClient.createInstance(new events.EventEmitter(), new Timer());
+      sinon.stub(httpClient, 'request');
+
+      var client = CdoApiClient.createInstance(dataset,
+        datatypeid, locationId, startDate, endDate,
+        httpClient);
+
+      var expected = '/cdo-web/api/v2/data?'
+        + 'datasetid=GHCND'
+        + '&locationid=CITY:AS000002'
+        + '&startdate=2012-01-01'
+        + '&enddate=2012-06-01'
+        + '&datatypeid=PRCP'
+        + '&limit=1000'
+        + '&offset=1';
+
+      // act
+      client.query();
 
       // assert
-      apiClient.should.not.be.null;
-    })
+      assert.equal(httpClient.request.called, true);
+      httpClient.request.getCall(0).args[0].path
+        .should.equal(expected);
+    });
+
   });
 
 });

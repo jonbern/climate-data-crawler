@@ -2,42 +2,23 @@
 var assert = require('assert');
 var should = require('should');
 var sinon = require('sinon');
-var cdoApiClient = require('../../cdoApiClient');
-var events = require('events');
-var Logger = require('../../helpers/logger');
-var HttpClient = require('../../helpers/httpClient');
-var Timer = require('../../helpers/timer');
+var CdoApiClient = require('../../cdoApiClient');
 
 describe('CdoApiClient', function(){
   describe('#invoke', function(){
-
-    var getInstance = function() {
-      var httpClient = new HttpClient();
-
-      var logger = new Logger();
-      sinon.stub(logger, 'info');
-
-      var eventEmitter = new events.EventEmitter();
-      var timer = new Timer();
-
-      return new cdoApiClient(
-        httpClient, logger, eventEmitter, timer);
-    };
 
     it('should raise done event', function(done){
       // arrange
       this.timeout(120 * 1000);
 
-      var api = getInstance();
-      var eventEmitter = api.getEventEmitter();
+      var client = CdoApiClient.createInstance('GHCNDMS',
+        'MNTM', 'CITY:BR000023', '1983-01-01', '1983-12-31');
+
+      var eventEmitter = client.getEventEmitter();
 
       // act
-      api.query({
-        dataset: 'GHCNDMS',
-        datatypeid: 'MNTM',
-        locationId: 'CITY:BR000023',
-        startDate: '1983-01-01',
-        endDate: '1983-12-31'
+      client.query(function(result){
+        console.log(result);
       });
 
       // assert
@@ -52,17 +33,13 @@ describe('CdoApiClient', function(){
       // arrange
       this.timeout(120 * 1000);
 
-      var api = getInstance();
-      var eventEmitter = api.getEventEmitter();
+      var client = CdoApiClient.createInstance('GHCNDMS',
+        'MNTM', 'CITY:BR000023', '2000-01-01', '2000-12-31');
+
+      var eventEmitter = client.getEventEmitter();
 
       // act
-      api.query({
-        dataset: 'GHCNDMS',
-        datatypeid: 'MNTM',
-        locationId: 'CITY:BR000023',
-        startDate: '2000-01-01',
-        endDate: '2000-12-31'
-      });
+      client.query();
 
       // assert
       eventEmitter.on('done', function(result){

@@ -133,23 +133,12 @@ dataQuery.run(function(queryResult){
 Use the CdoApiClient to get Brisbane's monthly mean temperatures between 01 January 2014 and 31 December 2014:
 ```
 var CdoApiClient = require('./cdoApiClient');
-var events = require('events');
 
-var apiClient = CdoApiClient.createInstance();
+var client = CdoApiClient.createInstance('GHCNDMS', 'MNTM', 'CITY:AS000002', '2014-01-01', '2014-12-31');
     
-var parameters = {
-  dataset: 'GHCNDMS',
-  datatypeid: 'MNTM',
-  locationId: CITY:AS000002,
-  startDate: '2014-01-01',
-  endDate: '2014-12-31'
-};
-  
-ngdcApiClient.getEventEmitter().on('done', function(result){
- console.log(result);
+client.query(function(result){
+    console.log(result);
 });
-
-ngdcApiClient.query(parameters);
 ```
 
 ## Resources
@@ -174,5 +163,7 @@ GHCNDMS - Global Historical Climatology Network-Monthly data set:
 
 ### Links
 [NCDC Climate Data Online](https://www.ncdc.noaa.gov/cdo-web)
+
+[NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
 
 [Wikipedia: Global Historical Climatology Network](http://en.wikipedia.org/wiki/Global_Historical_Climatology_Network)

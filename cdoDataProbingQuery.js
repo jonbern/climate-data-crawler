@@ -1,62 +1,57 @@
 "use strict";
 var CdoApiClient = require('./cdoApiClient');
+var CdoApiClientFactory = require('./cdoApiClientFactory');
 var Timer = require('./helpers/timer');
 
-function CdoDataProbingQuery(cdoApiClient, timer, params) {
-  var queryYear = params.startYear;
+function CdoDataProbingQuery(
+  cdoApiClientFactory, timer,
+  locationId, dataset, datatypeid,  startYear, endYear) {
 
-  var apiParameters = {
-    dataset: params.dataset,
-    datatypeid: params.datatypeid,
-    locationId: params.locationId,
-    startDate: queryYear + '-01-01',
-    endDate: queryYear + '-12-31'
+  var queryYear = startYear;
+  var onQueryComplete;
+
+  var onApiCallComplete = function(result){
+    if (result){
+      onQueryComplete(result);
+    }
+    else {
+     queryYear--;
+      if (queryYear >= endYear){
+        timer.setTimeout(function(){
+          queryNext()
+        }, 1000);
+      }
+      else {
+        onQueryComplete(null);
+      }
+    }
+  };
+
+  var queryNext = function(){
+    var cdoApiClient = cdoApiClientFactory.createInstance(
+      locationId, dataset, datatypeid,
+      queryYear + '-01-01', queryYear + '-12-31');
+
+    cdoApiClient.query(onApiCallComplete);
   };
 
   // privileged functions
   this.run = function(onQueryCompleteCallback){
-    if (!onQueryCompleteCallback) onQueryCompleteCallback = function(){};
+    if (onQueryCompleteCallback){
+      onQueryComplete = onQueryCompleteCallback;
+    }
+    else {
+      onQueryComplete = function(){}
+    }
 
-    var onApiClientDone = function(result){
-      if (result){
-        onQueryCompleteCallback(result);
-      }
-      else {
-        queryYear--;
-        if (queryYear >= params.endYear){
-          timer.setTimeout(function(){
-            apiParameters.startDate = queryYear + '-01-01';
-            apiParameters.endDate = queryYear + '-12-31';
-            cdoApiClient.query(apiParameters);
-          }, 1000);
-        }
-        else {
-          onQueryCompleteCallback(null);
-        }
-      }
-    };
-
-    cdoApiClient.getEventEmitter().on('done', onApiClientDone);
-    cdoApiClient.query(apiParameters);
+    queryNext();
   }
 }
 
-CdoDataProbingQuery.createInstance = function(
-  locationId, dataset, datatypeid, startYear, endYear){
-  var events = require('events');
-  var eventEmitter = new events.EventEmitter();
-  var timer = new Timer();
-
-  var apiClient = CdoApiClient.createInstance(eventEmitter, timer);
-
+CdoDataProbingQuery.createInstance = function(locationId, dataset, datatypeid, startYear, endYear){
   return new CdoDataProbingQuery(
-    apiClient, timer, {
-      locationId: locationId,
-      dataset: dataset,
-      datatypeid: datatypeid,
-      startYear: startYear,
-      endYear: endYear
-    });
+    CdoApiClientFactory.createInstance, new Timer(),
+    locationId, dataset, datatypeid, startYear, endYear);
 };
 
 module.exports = CdoDataProbingQuery;

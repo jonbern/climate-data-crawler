@@ -4,9 +4,8 @@ var Timer = require('./helpers/timer');
 
 function CdoApiClient(httpClient, logger, eventEmitter, timer,
                       dataset, datatypeid, locationid, startDate, endDate) {
-
   var queryResults;
-  var resultDelegate = function(){};
+  var resultDelegate;
 
   var queryPath =
     '/cdo-web/api/v2/data?datasetid=' + dataset
@@ -16,22 +15,22 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
     + '&datatypeid=' + datatypeid
     + '&limit=1000';
 
-  function invokeApi(offset) {
-    if(offset === 1){
+  function queryNext(offset) {
+    if (!offset){
+      offset = 1;
       queryResults = [];
     }
-
-    var apiToken = readApiToken();
 
     var options = {
       host : 'www.ncdc.noaa.gov',
       port : 80,
       path : queryPath + '&offset=' + offset,
       method : 'GET',
-      headers: {'token': apiToken}
+      headers: {'token': readApiToken()}
     };
 
     logger.info(options.path);
+
     httpClient.request(options, onRequestCompleted, function(error) {
       logger.error(error);
     });
@@ -60,7 +59,8 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
       }
       else {
         timer.setTimeout(function () {
-          invokeApi(nextRequestOffset);
+          console.log(nextRequestOffset);
+          queryNext(nextRequestOffset);
         }, 1500);
       }
     }
@@ -73,11 +73,15 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
   }
 
   // privileged functions
-  this.query = function(offset, resultCallback) {
+  this.query = function(resultCallback) {
     if (resultCallback) {
       resultDelegate = resultCallback;
     }
-    invokeApi(offset ? offset : 1);
+    else {
+      resultDelegate = function(){};
+    }
+
+    queryNext();
   };
 
   this.getEventEmitter = function(){
@@ -86,13 +90,14 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
 }
 
 CdoApiClient.createInstance = function(dataset, datatypeid, locationid, startDate, endDate,
-                                       eventEmitter, timer){
+                                       httpClient, logger, eventEmitter, timer){
   var events = require('events');
   var HttpClient = require('./helpers/httpClient');
   var Logger = require('./helpers/logger');
 
   return new CdoApiClient(
-    new HttpClient(), new Logger(),
+    httpClient ? httpClient : new HttpClient(),
+    logger ? logger : new Logger(),
     eventEmitter ? eventEmitter : new events.EventEmitter(),
     timer ? timer : new Timer(),
     dataset, datatypeid, locationid, startDate, endDate);

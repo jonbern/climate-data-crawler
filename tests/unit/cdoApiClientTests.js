@@ -350,7 +350,7 @@ describe('CdoClient', function(){
         var client = getInstance();
 
         // act
-        client.query(0);
+        client.query();
 
         // assert
         assert.equal(spy.calledWith('done', expectedResults.results), true);
@@ -405,7 +405,6 @@ describe('CdoClient', function(){
         var client = getInstance();
 
         // act
-        //client.query(0, resultCallback);
         client.query(resultCallback);
 
         // assert

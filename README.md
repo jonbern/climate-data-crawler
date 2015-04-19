@@ -134,7 +134,7 @@ Use the CdoApiClient to get Brisbane's monthly mean temperatures between 01 Janu
 ```
 var CdoApiClient = require('./cdoApiClient');
 
-var client = CdoApiClient.createInstance('GHCNDMS', 'MNTM', 'CITY:AS000002', '2014-01-01', '2014-12-31');
+var client = CdoApiClient.createInstance('CITY:AS000002', 'GHCNDMS', 'MNTM', '2014-01-01', '2014-12-31');
     
 client.query(function(result){
     console.log(result);

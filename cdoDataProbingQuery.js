@@ -50,7 +50,7 @@ function CdoDataProbingQuery(
 
 CdoDataProbingQuery.createInstance = function(locationId, dataset, datatypeid, startYear, endYear){
   return new CdoDataProbingQuery(
-    CdoApiClientFactory.createInstance, new Timer(),
+    CdoApiClientFactory, new Timer(),
     locationId, dataset, datatypeid, startYear, endYear);
 };
 

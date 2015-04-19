@@ -3,7 +3,7 @@ var fs = require('fs');
 var Timer = require('./helpers/timer');
 
 function CdoApiClient(httpClient, logger, eventEmitter, timer,
-                      dataset, datatypeid, locationid, startDate, endDate) {
+                      locationid, dataset, datatypeid, startDate, endDate) {
   var queryResults;
   var resultDelegate;
 
@@ -89,7 +89,7 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
   };
 }
 
-CdoApiClient.createInstance = function(dataset, datatypeid, locationid, startDate, endDate,
+CdoApiClient.createInstance = function(locationid, dataset, datatypeid, startDate, endDate,
                                        httpClient, logger, eventEmitter, timer){
   var events = require('events');
   var HttpClient = require('./helpers/httpClient');
@@ -100,7 +100,7 @@ CdoApiClient.createInstance = function(dataset, datatypeid, locationid, startDat
     logger ? logger : new Logger(),
     eventEmitter ? eventEmitter : new events.EventEmitter(),
     timer ? timer : new Timer(),
-    dataset, datatypeid, locationid, startDate, endDate);
+    locationid, dataset, datatypeid, startDate, endDate);
 };
 
 module.exports = CdoApiClient;

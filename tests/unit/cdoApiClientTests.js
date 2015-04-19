@@ -70,7 +70,7 @@ describe('CdoClient', function(){
   var getInstance = function(){
     return new CdoApiClient(
       httpClient, logger, eventEmitter, timer,
-      dataset, datatypeid, locationId, startDate, endDate);
+      locationId, dataset, datatypeid, startDate, endDate);
   };
 
   describe('#invoke', function() {
@@ -474,8 +474,8 @@ describe('CdoClient', function(){
       // arrange
       sinon.stub(httpClient, 'request');
 
-      var client = CdoApiClient.createInstance(dataset,
-        datatypeid, locationId, startDate, endDate,
+      var client = CdoApiClient.createInstance(
+        locationId, dataset, datatypeid, startDate, endDate,
         httpClient);
 
       var expected = '/cdo-web/api/v2/data?'

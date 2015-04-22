@@ -1,5 +1,5 @@
 "use strict";
-var should = require('should');
+var assert = require('assert');
 var HttpClient = require('../../helpers/httpClient');
 
 describe('HttpClient', function(){
@@ -25,7 +25,7 @@ describe('HttpClient', function(){
       var client = new HttpClient();
 
       client.request(options, function(result){
-        result.should.be.equal(JSON.stringify(expected));
+        assert.equal(result, JSON.stringify(expected));
         done();
       });
     });
@@ -42,7 +42,7 @@ describe('HttpClient', function(){
       var client = new HttpClient();
 
       client.request(options, function(result){}, function(error){
-        error.should.be.defined;
+        assert.notEqual(error, null);
         done();
       });
     })

@@ -27,7 +27,6 @@
   "dependencies": {
     "command-line-args": "^0.5.9",
     "mocha": "^2.2.1",
-    "should": "^5.2.0",
     "sinon": "^1.14.1"
   }
 }

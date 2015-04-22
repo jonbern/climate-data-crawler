@@ -1,5 +1,4 @@
 "use strict";
-var should = require('should');
 var sinon = require('sinon');
 var assert = require('assert');
 var CdoApiClient = require('../../cdoApiClient');
@@ -94,8 +93,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      httpClient.request.getCall(0).args[0].path
-        .should.equal(expected);
+      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
     it('should use locationid from constructor argument', function() {
@@ -118,8 +116,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      httpClient.request.getCall(0).args[0].path
-        .should.equal(expected);
+      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
     it('should use enddate from constructor parameter', function() {
@@ -142,8 +139,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      httpClient.request.getCall(0).args[0].path
-        .should.equal(expected);
+      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
     it('should use startdate from constructor argument', function() {
@@ -166,8 +162,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      httpClient.request.getCall(0).args[0].path
-        .should.equal(expected);
+      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
     it('should use httpClient to make http request', function(){
@@ -179,7 +174,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      httpClient.request.called.should.be.true;
+      assert.equal(httpClient.request.called, true);
     });
 
     it('should throw exception when status != 200', function(){
@@ -195,7 +190,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      logger.error.called.should.be.true;
+      assert.equal(logger.error.called, true);
     });
 
     it('should use httpClient using correct options', function(){
@@ -219,8 +214,7 @@ describe('CdoClient', function(){
       client.query();
 
       // assert
-      httpClient.request.calledWith(expectedOptions)
-        .should.be.true;
+      assert.equal(httpClient.request.calledWith(expectedOptions), true);
     });
 
     describe("data paging functionality", function(){
@@ -253,17 +247,23 @@ describe('CdoClient', function(){
         // assert
         var queryPath = '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000';
 
-        httpClient.request.getCall(0).args[0].path
-          .should.equal(queryPath + '&offset=1');
+        assert.equal(
+          httpClient.request.getCall(0).args[0].path,
+          queryPath + '&offset=1');
 
-        httpClient.request.getCall(1).args[0].path
-          .should.equal(queryPath + '&offset=26');
+        assert.equal(
+          httpClient.request.getCall(1).args[0].path,
+          queryPath + '&offset=26'
+        );
 
-        httpClient.request.getCall(2).args[0].path
-          .should.equal(queryPath + '&offset=51');
-
-        httpClient.request.getCall(3).args[0].path
-          .should.equal(queryPath + '&offset=76');
+        assert.equal(
+          httpClient.request.getCall(2).args[0].path,
+          queryPath + '&offset=51'
+        );
+        assert.equal(
+          httpClient.request.getCall(3).args[0].path,
+          queryPath + '&offset=76'
+        );
       });
 
       it('should make delayed api calls in case there is more data to query', function(){
@@ -292,8 +292,7 @@ describe('CdoClient', function(){
         client.query();
 
         // assert
-        timer.setTimeout.getCall(0).args[1].should.be.greaterThan(1000);
-
+        assert.equal(timer.setTimeout.getCall(0).args[1] > 1000, true);
       });
     });
 
@@ -371,7 +370,7 @@ describe('CdoClient', function(){
         client.query();
 
         // assert
-        spy.calledWith('done', null).should.be.true;
+        assert.equal(spy.calledWith('done', null), true);
       });
 
     });
@@ -423,8 +422,8 @@ describe('CdoClient', function(){
 
         // assert
         var call = fs.readFileSync.getCall(0);
-        call.args[0].should.equal('apitoken.txt');
-        call.args[1].should.equal('utf8');
+        assert.equal(call.args[0], 'apitoken.txt');
+        assert.equal(call.args[1], 'utf8');
       });
 
       it('should write helpful message when there is no api-token file', function(){
@@ -453,9 +452,8 @@ describe('CdoClient', function(){
     it('should return eventEmitter instance', function(){
       var client = getInstance();
 
-      client.getEventEmitter().should.not.be.null;
-      client.getEventEmitter().should.not.be.undefined;
-      client.getEventEmitter().should.be.equal(eventEmitter);
+      assert.notEqual(client.getEventEmitter(), null);
+      assert.equal(client.getEventEmitter(), eventEmitter);
     })
   });
 
@@ -466,7 +464,8 @@ describe('CdoClient', function(){
         dataset, datatypeid, locationId, startDate, endDate);
 
       // assert
-      apiClient.should.not.be.null;
+      //apiClient.should.not.be.null;
+      assert.notEqual(apiClient, null);
     });
 
     it('should use the factory arguments and pass to httpClient', function() {
@@ -491,8 +490,7 @@ describe('CdoClient', function(){
 
       // assert
       assert.equal(httpClient.request.called, true);
-      httpClient.request.getCall(0).args[0].path
-        .should.equal(expected);
+      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
   });

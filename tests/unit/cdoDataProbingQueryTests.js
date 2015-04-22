@@ -1,5 +1,4 @@
 "use strict";
-var should = require('should');
 var assert = require('assert');
 var sinon = require('sinon');
 var CdoApiClient = require('../../cdoApiClient');
@@ -169,7 +168,7 @@ describe('CdoDataProbingQuery', function(){
         query.run();
 
         // assert
-        api.query.callCount.should.be.equal(expectedQueryCount);
+        assert.equal(api.query.callCount, expectedQueryCount);
 
         for (var i = 0; i < expectedQueryCount; i++){
           var currentQueryYear = startYear - i;

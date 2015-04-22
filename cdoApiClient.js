@@ -59,7 +59,6 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
       }
       else {
         timer.setTimeout(function () {
-          console.log(nextRequestOffset);
           queryNext(nextRequestOffset);
         }, 1500);
       }

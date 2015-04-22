@@ -1,6 +1,4 @@
 "use strict";
-var should = require('should');
-var sinon = require('sinon');
 var assert = require('assert');
 var DataProbingBounds = require('../../dataProbingBounds');
 
@@ -56,7 +54,7 @@ describe('dataProbingBounds', function(){
       var result = probingBounds.getProbingBounds(inputDate);
 
       // assert
-      result.startYear.should.be.equal(expectedStartYear);
+      assert.equal(result.startYear, expectedStartYear);
     });
 
     it('return the year of the input date when date not this year', function(){
@@ -71,7 +69,7 @@ describe('dataProbingBounds', function(){
       var result = probingBounds.getProbingBounds(inputDate);
 
       // assert
-      result.startYear.should.be.equal(expectedStartYear);
+      assert.equal(result.startYear, expectedStartYear);
     });
 
     it('stopYear should always be expectedStopYear', function(){
@@ -85,7 +83,7 @@ describe('dataProbingBounds', function(){
       var result = probingBounds.getProbingBounds(inputDate);
 
       // assert
-      result.stopYear.should.be.equal(expectedStopYear);
+      assert.equal(result.stopYear, expectedStopYear);
     });
 
     it('return last year if inputDate is less than stopYear', function(){
@@ -100,8 +98,8 @@ describe('dataProbingBounds', function(){
       var result = probingBounds.getProbingBounds(inputDate);
 
       // assert
-      result.startYear.should.be.equal(expectedStartYear);
-      result.stopYear.should.be.equal(expectedStopYear);
+      assert.equal(result.startYear, expectedStartYear);
+      assert.equal(result.stopYear, expectedStopYear);
     });
 
   })

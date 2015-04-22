@@ -1,6 +1,5 @@
 "use strict";
 var assert = require('assert');
-var should = require('should');
 var sinon = require('sinon');
 var CdoApiClient = require('../../cdoApiClient');
 
@@ -11,8 +10,8 @@ describe('CdoApiClient', function(){
       // arrange
       this.timeout(120 * 1000);
 
-      var client = CdoApiClient.createInstance('GHCNDMS',
-        'MNTM', 'CITY:BR000023', '1983-01-01', '1983-12-31');
+      var client = CdoApiClient.createInstance('CITY:BR000023', 'GHCNDMS',
+        'MNTM', '1983-01-01', '1983-12-31');
 
       var eventEmitter = client.getEventEmitter();
 
@@ -24,7 +23,7 @@ describe('CdoApiClient', function(){
       // assert
       eventEmitter.on('done', function(result){
         console.log(result);
-        result.should.not.be.null;
+        assert.notEqual(result, null);
         done();
       });
     });
@@ -33,8 +32,8 @@ describe('CdoApiClient', function(){
       // arrange
       this.timeout(120 * 1000);
 
-      var client = CdoApiClient.createInstance('GHCNDMS',
-        'MNTM', 'CITY:BR000023', '2000-01-01', '2000-12-31');
+      var client = CdoApiClient.createInstance('CITY:BR000023', 'GHCNDMS',
+        'MNTM', '2000-01-01', '2000-12-31');
 
       var eventEmitter = client.getEventEmitter();
 

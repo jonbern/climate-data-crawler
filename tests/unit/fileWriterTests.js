@@ -1,5 +1,5 @@
 "use strict";
-var should = require('should');
+var assert = require('assert');
 var sinon = require('sinon');
 var writer = require('../../helpers/resultsWriter');
 var fs = require('fs');
@@ -29,8 +29,8 @@ describe("FileWriter", function(){
       writer.write('fileName', data);
 
       // assert
-      var secondArgument = JSON.stringify(data);
-      secondArgument.should.be.equal(JSON.stringify(data));
+      var secondArgument = spy.getCall(0).args[1];
+      assert.equal(secondArgument, JSON.stringify(data) + '\r\n');
     });
 
     it('should use datatypeid as filename with json as extension', function(){
@@ -43,7 +43,7 @@ describe("FileWriter", function(){
 
       // assert
       var firstArgument = spy.getCall(0).args[0];
-      firstArgument.should.be.equal(fileName);
+      assert.equal(firstArgument, fileName);
     });
 
     it('should also write to file if data is empty', function() {
@@ -56,7 +56,7 @@ describe("FileWriter", function(){
       writer.write('fileName', emptyObject);
 
       // assert
-      spy.callCount.should.be.equal(1);
+      assert.equal(spy.callCount, 1);
     });
 
     it('should not write to file if data is null', function() {
@@ -68,7 +68,7 @@ describe("FileWriter", function(){
       writer.write('fileName', null);
 
       // assert
-      spy.callCount.should.be.equal(0);
+      assert.equal(spy.callCount, 0);
     });
 
     it('should write to console (with filename) if data is not empty', function(){
@@ -82,9 +82,11 @@ describe("FileWriter", function(){
       writer.write(fileName, data);
 
       // assert
-      spy.callCount.should.be.equal(1);
+      assert.equal(spy.callCount, 1);
+
       var firstArgument = spy.getCall(0).args[0];
-      firstArgument.should.be.equal('writing results: ' + fileName);
+      var expectedMessage = 'writing results: ' + fileName;
+      assert.equal(firstArgument, expectedMessage);
     });
   })
 

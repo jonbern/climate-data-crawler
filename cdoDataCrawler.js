@@ -30,7 +30,6 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
         dataset, datatype, probingBounds.startYear, probingBounds.stopYear);
 
       dataQuery.run(onQueryComplete);
-
       index++;
     } else {
       resultsDelegate(results, locationsNoData);
@@ -52,7 +51,11 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
   };
 
   var reportProgress = function(){
-    var progress = Math.round((index / count) * 100 * 100) / 100;
+    var lastIndex = count + offset;
+    if (lastIndex > locations.length){
+      lastIndex = locations.length;
+    }
+    var progress = Math.round(index / (lastIndex - offset) * 100 * 100) / 100;
     console.log('progress: ' + progress + '%');
   };
 

@@ -1,5 +1,4 @@
 "use strict";
-var should = require('should');
 var sinon = require('sinon');
 var assert = require('assert');
 var CdoApiClient = require('../../cdoApiClient');
@@ -121,11 +120,11 @@ describe('CdoDataCrawler', function(){
 
       // assert
       var call = dataQueryFactory.createInstance.getCall(0);
-      call.args[0].should.be.equal(locations[0].id);
-      call.args[1].should.be.equal(dataset);
-      call.args[2].should.be.equal(datatype);
-      call.args[3].should.be.equal(probingStartYear);
-      call.args[4].should.be.equal(probingStopYear);
+      assert.equal(call.args[0], locations[0].id);
+      assert.equal(call.args[1], dataset);
+      assert.equal(call.args[2], datatype);
+      assert.equal(call.args[3], probingStartYear);
+      assert.equal(call.args[4], probingStopYear);
     });
 
     it('should invoke query by running dataQuery\'s run method', function(){
@@ -150,11 +149,11 @@ describe('CdoDataCrawler', function(){
 
       // assert
       var call = dataQueryFactory.createInstance.getCall(1);
-      call.args[0].should.be.equal(locations[1].id);
-      call.args[1].should.be.equal(dataset);
-      call.args[2].should.be.equal(datatype);
-      call.args[3].should.be.equal(probingStartYear);
-      call.args[4].should.be.equal(probingStopYear);
+      assert.equal(call.args[0], locations[1].id);
+      assert.equal(call.args[1], dataset);
+      assert.equal(call.args[2], datatype);
+      assert.equal(call.args[3], probingStartYear);
+      assert.equal(call.args[4], probingStopYear);
 
     });
 
@@ -173,25 +172,75 @@ describe('CdoDataCrawler', function(){
       assert.equal(dataQuery.run.callCount, locations.length);
     });
 
-    it('should write progress to console', function(){
-      // arrange
-      var crawler = getInstance();
+    describe('status reporting', function(){
+      it('should write progress to console', function(){
+        // arrange
+        var crawler = getInstance();
 
-      var calcProgress = function(index){
-        return Math.round((index / locations.length) * 100 * 100) / 100
-      };
+        var calcProgress = function(index){
+          return Math.round((index / locations.length) * 100 * 100) / 100
+        };
 
-      // act
-      crawler.run();
-      for (var i = 0; i < locations.length; i++){
-        simulateQueryCompleted(null)
-      }
+        // act
+        crawler.run();
+        for (var i = 0; i < locations.length; i++){
+          simulateQueryCompleted(null)
+        }
 
-      // assert
-      for (i = 0; i < locations.length; i++){
-        var progress = calcProgress(i + 1);
-        console.log.calledWith('progress: ' + progress + '%').should.equal(true)
-      }
+        // assert
+        for (i = 0; i < locations.length; i++){
+          var progress = calcProgress(i + 1);
+          assert.equal(console.log.calledWith('progress: ' + progress + '%'), true);
+        }
+      });
+
+      it('should write progress to console when offset > 0 (regression)', function(){
+        // arrange
+        offset = 2;
+        count = 3;
+
+        var crawler = getInstance();
+
+        var calcProgress = function(index){
+          return Math.round((index / count) * 100 * 100) / 100
+        };
+
+        // act
+        crawler.run();
+        for (var i = 0; i < count; i++){
+          simulateQueryCompleted(null)
+        }
+
+        // assert
+        for (i = 0; i < count; i++){
+          var progress = calcProgress(i + 1);
+          assert.equal(console.log.calledWith('progress: ' + progress + '%'), true);
+        }
+      });
+
+      it('should calculate progress correctly when offset > 0 and count > locations.length', function(){
+        // arrange
+        offset = 2;
+        count = locations.length * 2; // 6 * 2
+
+        var crawler = getInstance();
+
+        var calcProgress = function(index){
+          return Math.round((index / (locations.length - offset)) * 100 * 100) / 100
+        };
+
+        // act
+        crawler.run();
+        for (var i = 0; i < locations.length - offset; i++){
+          simulateQueryCompleted(null)
+        }
+
+        // assert
+        for (i = 0; i < locations.length - offset; i++){
+          var progress = calcProgress(i + 1);
+          assert.equal(console.log.calledWith('progress: ' + progress + '%'), true);
+        }
+      })
     });
 
     it('should not exceed the number of queries specified by queryLimit', function(){
@@ -222,7 +271,7 @@ describe('CdoDataCrawler', function(){
 
       // assert
       var call = dataQueryFactory.createInstance.getCall(0);
-      call.args[0].should.be.equal(locations[offset].id);
+      assert.equal(call.args[0], locations[offset].id)
     });
 
     it('should wait at least one second before probing again', function(){
@@ -235,8 +284,8 @@ describe('CdoDataCrawler', function(){
 
       // assert
       var call = timer.setTimeout.getCall(0);
-      call.args[1].should.be.greaterThan(1000);
-      timer.setTimeout.calledOnce.should.equal(true);
+      assert.equal(call.args[1] > 1000, true);
+      assert.equal(timer.setTimeout.calledOnce, true);
     });
 
     it('should invoke resultsCallback when finished', function(){
@@ -314,30 +363,6 @@ describe('CdoDataCrawler', function(){
         assert.equal(call.args[0], locations[offset + j].id);
       }
 
-    });
-
-    it('should write progress to console when offset > 0 (regression)', function(){
-      // arrange
-      offset = 2;
-      count = 3;
-
-      var crawler = getInstance();
-
-      var calcProgress = function(index){
-        return Math.round((index / count) * 100 * 100) / 100
-      };
-
-      // act
-      crawler.run();
-      for (var i = 0; i < count; i++){
-        simulateQueryCompleted(null)
-      }
-
-      // assert
-      for (i = 0; i < count; i++){
-        var progress = calcProgress(i + 1);
-        console.log.calledWith('progress: ' + progress + '%').should.equal(true)
-      }
     });
 
     it('should not go out of bounds on locations', function(){

@@ -3,3 +3,4 @@ node_modules/
 apitoken.txt
 CITIES.json
 data/
+.DS_Store

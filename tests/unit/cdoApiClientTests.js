@@ -415,6 +415,7 @@ describe('CdoClient', function(){
     describe('api token', function(){
       it('should read api-token from file', function(){
         // arrange
+        sinon.stub(httpClient, 'request');
         var client = getInstance();
 
         // act
@@ -428,6 +429,7 @@ describe('CdoClient', function(){
 
       it('should write helpful message when there is no api-token file', function(){
         // arrange
+        sinon.stub(httpClient, 'request');
         fs.readFileSync.restore();
         sinon.stub(fs, 'readFileSync', function(filepath, encoding){
           throw new Error('ENOENT, no such file or directory');
@@ -464,7 +466,6 @@ describe('CdoClient', function(){
         dataset, datatypeid, locationId, startDate, endDate);
 
       // assert
-      //apiClient.should.not.be.null;
       assert.notEqual(apiClient, null);
     });
 

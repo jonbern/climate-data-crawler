@@ -18,6 +18,14 @@ function HttpClient(){
         successCallback(body);
       });
     });
+
+    request.on('socket', function (socket) {
+      socket.setTimeout(60000);
+      socket.on('timeout', function() {
+        request.abort();
+      });
+    });
+
     request.on('error', function(error){
       errorCallback(error.message);
     });

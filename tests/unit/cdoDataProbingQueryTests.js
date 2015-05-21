@@ -239,6 +239,36 @@ describe('CdoDataProbingQuery', function(){
 
     });
 
+    describe('error handling', function(){
+      it('should invoke error callback', function(){
+        // arrange
+        var errorTrigger = null;
+        sinon.stub(api, 'query', function(successCallback, errorCallback){
+          errorTrigger = errorCallback;
+        });
+
+        var wasCalled = false;
+        var callArguments = null;
+        var errorHandler = function(){
+          wasCalled = true;
+          callArguments = arguments;
+        };
+
+        var error = "something wrong happened";
+
+        var query = getInstance();
+
+        // act
+        query.run(function(){}, errorHandler);
+        errorTrigger(error);
+
+        // assert
+        assert.equal(wasCalled, true);
+        assert.equal(callArguments[0], error);
+      });
+
+    });
+
   });
 
   describe('#createInstance', function(){

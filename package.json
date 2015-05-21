@@ -27,6 +27,7 @@
   "dependencies": {
     "command-line-args": "^0.5.9",
     "mocha": "^2.2.1",
+    "readline-sync": "^1.2.15",
     "sinon": "^1.14.1"
   }
 }

@@ -10,7 +10,9 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
   var queryLocationId;
   var index = 0;
 
-  var resultsDelegate = function(){};
+  var onResults = function(){};
+  var onError = function(){};
+
   var results = [];
   var locationsNoData = [];
 
@@ -29,10 +31,9 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
       dataQuery = cdoDataQueryFactory.createInstance(queryLocationId,
         dataset, datatype, probingBounds.startYear, probingBounds.stopYear);
 
-      dataQuery.run(onQueryComplete);
-      index++;
+      dataQuery.run(onQueryComplete, onError);
     } else {
-      resultsDelegate(results, locationsNoData);
+      onResults(results, locationsNoData);
     }
   };
 
@@ -43,6 +44,7 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
       locationsNoData.push(queryLocationId);
     }
 
+    index++;
     reportProgress();
 
     timer.setTimeout(function(){
@@ -60,10 +62,17 @@ function CdoDataCrawler(cdoDataQueryFactory, dataProbingBounds, timer,
   };
 
   // privileged functions
-  this.run = function(resultsCallback){
-    if (resultsCallback) {
-      resultsDelegate = resultsCallback;
-    }
+  this.run = function(resultsCallback, errorCallback){
+    if (resultsCallback)
+      onResults = resultsCallback;
+
+    if (errorCallback)
+      onError = errorCallback;
+
+    queryNext();
+  };
+
+  this.continue = function(){
     queryNext();
   }
 }

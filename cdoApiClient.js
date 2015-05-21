@@ -5,7 +5,8 @@ var Timer = require('./helpers/timer');
 function CdoApiClient(httpClient, logger, eventEmitter, timer,
                       locationid, dataset, datatypeid, startDate, endDate) {
   var queryResults;
-  var resultDelegate;
+  var onResults = function(){};
+  var onError = function(){};
 
   var queryPath =
     '/cdo-web/api/v2/data?datasetid=' + dataset
@@ -31,9 +32,7 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
 
     logger.info(options.path);
 
-    httpClient.request(options, onRequestCompleted, function(error) {
-      logger.error(error);
-    });
+    httpClient.request(options, onRequestCompleted, onError);
   }
 
   function readApiToken(){
@@ -55,7 +54,7 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
 
       if (nextRequestOffset > resultset.count) {
         eventEmitter.emit('done', queryResults);
-        resultDelegate(queryResults);
+        onResults(queryResults);
       }
       else {
         timer.setTimeout(function () {
@@ -66,19 +65,18 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
     else {
       if (Object.keys(resultJson).length === 0){
         eventEmitter.emit('done', null);
-        resultDelegate(null);
+        onResults(null);
       }
     }
   }
 
   // privileged functions
-  this.query = function(resultCallback) {
-    if (resultCallback) {
-      resultDelegate = resultCallback;
-    }
-    else {
-      resultDelegate = function(){};
-    }
+  this.query = function(resultCallback, errorCallback) {
+    if (resultCallback)
+      onResults = resultCallback;
+
+    if (errorCallback)
+      onError = errorCallback;
 
     queryNext();
   };

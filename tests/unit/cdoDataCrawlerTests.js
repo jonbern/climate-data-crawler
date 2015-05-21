@@ -8,11 +8,12 @@ var HttpClient = require('../../helpers/httpClient');
 var Timer = require('../../helpers/timer');
 
 describe('CdoDataCrawler', function(){
-
   var timer;
   var dataQuery;
   var dataQueryFactory;
+
   var simulateQueryCompleted;
+  var simulateError;
 
   var dataset;
   var datatype;
@@ -75,8 +76,9 @@ describe('CdoDataCrawler', function(){
     });
 
     dataQuery = {
-      run: function(queryCompleteCallback){
+      run: function(queryCompleteCallback, errorCallback){
         simulateQueryCompleted = queryCompleteCallback;
+        simulateError = errorCallback;
       }
     };
 
@@ -397,6 +399,55 @@ describe('CdoDataCrawler', function(){
         }
       });
     });
+
+    describe('error handling', function(){
+      it('should invoke onError callback', function(){
+        // arrange
+        var error = "error 123";
+
+        var wasCalled = false;
+        var callArguments = null;
+        var errorCallback = function(){
+          wasCalled = true;
+          callArguments = arguments;
+        };
+
+        var crawler = getInstance();
+
+        // act
+        crawler.run(function(){}, errorCallback);
+        simulateError(error);
+
+        // assert
+        assert.equal(wasCalled, true);
+        assert.equal(callArguments[0], error);
+      });
+    });
+
+    describe('#continue', function(){
+      it('should run query again', function(){
+        // arrange
+        sinon.spy(dataQuery, 'run');
+        var crawler = getInstance();
+
+        // act + assert
+        crawler.run();
+        assert.equal(dataQuery.run.callCount, 1);
+
+        simulateError('error');
+        assert.equal(dataQuery.run.callCount, 1);
+
+        crawler.continue();
+        assert.equal(dataQuery.run.callCount, 2);
+
+        var locationIdStopCall =
+          dataQueryFactory.createInstance.getCall(0).args[0];
+        var locationIdContinueCall =
+          dataQueryFactory.createInstance.getCall(1).args[0];
+
+        assert.equal(locationIdStopCall, locationIdContinueCall);
+      });
+    })
   });
 
 });

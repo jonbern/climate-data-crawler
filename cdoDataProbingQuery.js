@@ -8,7 +8,9 @@ function CdoDataProbingQuery(
   locationId, dataset, datatypeid,  startYear, endYear) {
 
   var queryYear = startYear;
-  var onQueryComplete;
+
+  var onQueryComplete = function(){};
+  var onError = function(){};
 
   var onApiCallComplete = function(result){
     if (result){
@@ -32,17 +34,16 @@ function CdoDataProbingQuery(
       locationId, dataset, datatypeid,
       queryYear + '-01-01', queryYear + '-12-31');
 
-    cdoApiClient.query(onApiCallComplete);
+    cdoApiClient.query(onApiCallComplete, onError);
   };
 
   // privileged functions
-  this.run = function(onQueryCompleteCallback){
-    if (onQueryCompleteCallback){
-      onQueryComplete = onQueryCompleteCallback;
-    }
-    else {
-      onQueryComplete = function(){}
-    }
+  this.run = function(queryCompleteCallback, errorCallback){
+    if (queryCompleteCallback)
+      onQueryComplete = queryCompleteCallback;
+
+    if (errorCallback)
+      onError = errorCallback;
 
     queryNext();
   }

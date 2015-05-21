@@ -177,21 +177,33 @@ describe('CdoClient', function(){
       assert.equal(httpClient.request.called, true);
     });
 
-    it('should throw exception when status != 200', function(){
-      // arrange
-      var stubRequest = function(options, successCallback, errorCallback){
-        errorCallback("error");
-      };
-      sinon.stub(httpClient, 'request',stubRequest);
+    describe('error handling', function(){
+      it('should invoke onErrorCallback', function(){
+        // arrange
+        var wasCalled = false;
+        var callArguments = null;
+        var errorCallback = function(){
+          wasCalled = true;
+          callArguments = arguments;
+        };
 
-      var client = getInstance();
+        var expectedError = "this is an error";
+        var httpRequestStub = function(options, successCallback, errorCallback){
+          errorCallback(expectedError);
+        };
+        sinon.stub(httpClient, 'request', httpRequestStub);
 
-      // act
-      client.query();
+        var client = getInstance();
 
-      // assert
-      assert.equal(logger.error.called, true);
+        // act
+        client.query(function(){}, errorCallback);
+
+        // assert
+        assert.equal(wasCalled, true);
+        assert.equal(callArguments[0], expectedError);
+      })
     });
+
 
     it('should use httpClient using correct options', function(){
       // arrange

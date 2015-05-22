@@ -34,9 +34,9 @@ programmatically. The CdoApiClient handles the paging for you by using multiple 
 You need git to clone the Climate Data Crawler repository. You can get git from
 [http://git-scm.com/](http://git-scm.com/).
 
-You also need node.js and its package manager (npm) installed. You can get them from: [http://nodejs.org/](http://nodejs.org/).
+You also need node.js and its package manager (npm) installed. You can download node.js (including npm) from: [http://nodejs.org/](http://nodejs.org/).
 
-### Clone Clima Data Crawler repository
+### Clone Climate Data Crawler repository
 
 Clone the Climate Data Crawler repository using git:
 
@@ -140,6 +140,21 @@ client.query(function(result){
     console.log(result);
 });
 ```
+
+## Error handling
+
+All three components have support for defining an error callback to handle errors.
+```
+...
+
+var errorCallback = function(error){
+    // your error handling here
+}
+
+crawler.run(successCallback, errorCallback);
+```
+
+New in version 1.3, the CLI implements improved error handling which let's you retry a query in case it fails.
 
 ## Resources
 

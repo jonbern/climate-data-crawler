@@ -20,7 +20,7 @@ function HttpClient(){
     });
 
     request.on('socket', function (socket) {
-      socket.setTimeout(60000);
+      socket.setTimeout(600000);
       socket.on('timeout', function() {
         request.abort();
       });

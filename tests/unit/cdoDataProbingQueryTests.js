@@ -78,7 +78,7 @@ describe('CdoDataProbingQuery', function(){
   };
 
   describe('#run', function(){
-    it('should call apiClientFactory with expected parameters', function() {
+    it('call apiClientFactory with expected parameters', function() {
       // arrange
       sinon.stub(api, 'query');
       sinon.spy(apiClientFactory, 'createInstance');
@@ -95,7 +95,7 @@ describe('CdoDataProbingQuery', function(){
       assert.equal(isCalledWithParameters, true);
     });
 
-    it('should invoke apiClient\'s query method', function() {
+    it('invoke apiClient\'s query method', function() {
       // arrange
       sinon.stub(api, 'query');
 
@@ -109,47 +109,57 @@ describe('CdoDataProbingQuery', function(){
     });
 
     describe('#onQueryCompleteCallback', function(){
-      it('should call onQueryCompleteCallback with results when receiving data from api client', function(){
-        // arrange
-        var expectedRunResults = fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'});
-        var actualRunResults = null;
+      describe('results', function(){
+        it('invoke onQueryCompleteCallback with api results and append locationId', function(){
+          // arrange
+          var resultFromApi = JSON.parse(fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'}));
+          var results = null;
 
-        sinon.stub(api, 'query', function(onApiCallComplete){
-          onApiCallComplete(expectedRunResults);
+          var temp = resultFromApi;
+          for (var i = 0; i < temp.length; i++){
+            temp[i].locationId = locationId;
+          }
+          var expectedRunResults = temp;
+
+          sinon.stub(api, 'query', function(onApiCallComplete){
+            onApiCallComplete(resultFromApi);
+          });
+
+          var query = getInstance();
+
+          // act
+          query.run(function(res){
+            results = res;
+          });
+
+          // assert
+          assert.notEqual(results, null);
+          assert.equal(results, expectedRunResults);
         });
-
-        var query = getInstance();
-
-        // act
-        query.run(function(results){
-          actualRunResults = results;
-        });
-
-        // assert
-        assert.notEqual(actualRunResults, null);
-        assert.equal(actualRunResults, expectedRunResults);
       });
 
-      it('should be possible to call run without specifying onQueryCompleteCallback', function(){
-        // arrange
-        var runResults = fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'});
+      describe('onQueryCompleteCallback not given', function(){
+        it('not throw exception', function(){
+          // arrange
+          var runResults = JSON.parse(fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'}));
 
-        sinon.stub(api, 'query', function(onApiCallComplete){
-          onApiCallComplete(runResults);
-        });
+          sinon.stub(api, 'query', function(onApiCallComplete){
+            onApiCallComplete(runResults);
+          });
 
-        var query = getInstance();
+          var query = getInstance();
 
-        // act + assert
-        assert.doesNotThrow(function(){
-          query.run();
-        });
+          // act + assert
+          assert.doesNotThrow(function(){
+            query.run();
+          });
+        })
       });
 
     });
 
     describe('api returns no data for the current year\'s query', function(){
-      it('should query each year until it reaches endYear to probe for data', function(){
+      it('query each year until it reaches endYear to probe for data', function(){
         // arrange
         sinon.stub(api, 'query', function(onApiCallComplete){
           onApiCallComplete(null);
@@ -183,7 +193,7 @@ describe('CdoDataProbingQuery', function(){
       });
 
       describe('#onRunCompleteCallback', function(){
-        it('should invoke onRunCompleteCallback when no data until endYear', function(){
+        it('invoke onRunCompleteCallback when no data until endYear', function(){
           // arrange
           sinon.stub(api, 'query', function(onApiCallComplete){
             onApiCallComplete(null);
@@ -205,42 +215,40 @@ describe('CdoDataProbingQuery', function(){
           assert.equal(onRunCompleteCallbackCalled, true);
         });
 
-      });
+        it('pause shortly before probing next year', function() {
+          // arrange
+          sinon.stub(api, 'query', function(onApiCallComplete){
+            onApiCallComplete(null);
+          });
 
-      it('should pause shortly before probing next year', function() {
-        // arrange
-        sinon.stub(api, 'query', function(onApiCallComplete){
-          onApiCallComplete(null);
+          startYear = 2014;
+          endYear = 2000;
+          var expectedCallCount = startYear - endYear;
+          var actualCallCount = 0;
+
+          var actualDelay = null;
+
+          timer.setTimeout.restore();
+          sinon.stub(timer, 'setTimeout', function(callback, delay){
+            actualDelay = delay;
+            actualCallCount++;
+            callback();
+          });
+
+          var query = getInstance();
+
+          // act
+          query.run();
+
+          // assert
+          assert.equal(actualDelay, 1000);
+          assert.equal(actualCallCount, expectedCallCount);
         });
-
-        startYear = 2014;
-        endYear = 2000;
-        var expectedCallCount = startYear - endYear;
-        var actualCallCount = 0;
-
-        var actualDelay = null;
-
-        timer.setTimeout.restore();
-        sinon.stub(timer, 'setTimeout', function(callback, delay){
-          actualDelay = delay;
-          actualCallCount++;
-          callback();
-        });
-
-        var query = getInstance();
-
-        // act
-        query.run();
-
-        // assert
-        assert.equal(actualDelay, 1000);
-        assert.equal(actualCallCount, expectedCallCount);
       });
-
     });
 
     describe('error handling', function(){
-      it('should invoke error callback', function(){
+      it('invoke error callback', function(){
         // arrange
         var errorTrigger = null;
         sinon.stub(api, 'query', function(successCallback, errorCallback){
@@ -272,7 +280,7 @@ describe('CdoDataProbingQuery', function(){
   });
 
   describe('#createInstance', function(){
-    it('should not return null', function(){
+    it('not return null', function(){
       // arrange
       var query = CdoDataProbingQuery.createInstance('CITY:BR000023', 'GHCNDMS', 'MMNT', 2014, 2000);
 

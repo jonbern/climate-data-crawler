@@ -73,7 +73,7 @@ describe('CdoClient', function(){
   };
 
   describe('#invoke', function() {
-    it('should use dataset from constructor argument', function() {
+    it('use dataset value from constructor arguments', function() {
       // arrange
       dataset = "mydataset";
 
@@ -96,7 +96,7 @@ describe('CdoClient', function(){
       assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
-    it('should use locationid from constructor argument', function() {
+    it('use locationid value from constructor argument', function() {
       // arrange
       locationId = "AO:MYCITY";
 
@@ -119,7 +119,7 @@ describe('CdoClient', function(){
       assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
-    it('should use enddate from constructor parameter', function() {
+    it('use enddate from constructor parameter', function() {
       // arrange
       endDate = "23-10-1983";
 
@@ -142,7 +142,7 @@ describe('CdoClient', function(){
       assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
-    it('should use startdate from constructor argument', function() {
+    it('use startdate from constructor argument', function() {
       // arrange
       startDate = "23-10-1983";
 
@@ -165,7 +165,7 @@ describe('CdoClient', function(){
       assert.equal(httpClient.request.getCall(0).args[0].path, expected);
     });
 
-    it('should use httpClient to make http request', function(){
+    it('use httpClient to make http request', function(){
       // arrange
       sinon.stub(httpClient, 'request');
       var client = getInstance();
@@ -178,7 +178,7 @@ describe('CdoClient', function(){
     });
 
     describe('error handling', function(){
-      it('should invoke onErrorCallback', function(){
+      it('invoke onErrorCallback', function(){
         // arrange
         var wasCalled = false;
         var callArguments = null;
@@ -205,7 +205,7 @@ describe('CdoClient', function(){
     });
 
 
-    it('should use httpClient using correct options', function(){
+    it('use httpClient with correct options', function(){
       // arrange
       var stubRequest = function(options, successCallback, errorCallback) {
         successCallback(JSON.stringify({}));
@@ -230,87 +230,89 @@ describe('CdoClient', function(){
     });
 
     describe("data paging functionality", function(){
-      it('should make another httpRequest against api if there is more data to query (data paging)', function(){
-        // arrange
-        var apiResult = {
-          'metadata': {
-            'resultset': {
-              'limit': 25,
-              'count': 100,
-              'offset': 1
+      describe('there is more data left to query', function(){
+        it('make another httpRequest', function(){
+          // arrange
+          var apiResult = {
+            'metadata': {
+              'resultset': {
+                'limit': 25,
+                'count': 100,
+                'offset': 1
+              }
             }
-          }
-        };
-        var counter = 0;
-        var stubRequest = function(options, successCallback, errorCallback) {
-          var resultset = apiResult.metadata.resultset;
-          resultset.offset = (counter * resultset.limit) + 1;
-          counter++;
-          successCallback(JSON.stringify(apiResult));
-        };
-        sinon.stub(httpClient, 'request', stubRequest);
+          };
+          var counter = 0;
+          var stubRequest = function(options, successCallback, errorCallback) {
+            var resultset = apiResult.metadata.resultset;
+            resultset.offset = (counter * resultset.limit) + 1;
+            counter++;
+            successCallback(JSON.stringify(apiResult));
+          };
+          sinon.stub(httpClient, 'request', stubRequest);
 
-        var client = getInstance();
-        sinon.spy(client, 'query');
+          var client = getInstance();
+          sinon.spy(client, 'query');
 
-        // act
-        client.query();
+          // act
+          client.query();
 
-        // assert
-        var queryPath = '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000';
+          // assert
+          var queryPath = '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000';
 
-        assert.equal(
-          httpClient.request.getCall(0).args[0].path,
-          queryPath + '&offset=1');
+          assert.equal(
+            httpClient.request.getCall(0).args[0].path,
+            queryPath + '&offset=1');
 
-        assert.equal(
-          httpClient.request.getCall(1).args[0].path,
-          queryPath + '&offset=26'
-        );
+          assert.equal(
+            httpClient.request.getCall(1).args[0].path,
+            queryPath + '&offset=26'
+          );
 
-        assert.equal(
-          httpClient.request.getCall(2).args[0].path,
-          queryPath + '&offset=51'
-        );
-        assert.equal(
-          httpClient.request.getCall(3).args[0].path,
-          queryPath + '&offset=76'
-        );
-      });
+          assert.equal(
+            httpClient.request.getCall(2).args[0].path,
+            queryPath + '&offset=51'
+          );
+          assert.equal(
+            httpClient.request.getCall(3).args[0].path,
+            queryPath + '&offset=76'
+          );
+        });
 
-      it('should make delayed api calls in case there is more data to query', function(){
-        // arrange
-        var apiResult = {
-          'metadata': {
-            'resultset': {
-              'limit': 25,
-              'count': 50,
-              'offset': 1
+        it('make subsequent api call after a slight delay', function(){
+          // arrange
+          var apiResult = {
+            'metadata': {
+              'resultset': {
+                'limit': 25,
+                'count': 50,
+                'offset': 1
+              }
             }
-          }
-        };
-        var counter = 0;
-        var stubRequest = function(options, successCallback, errorCallback) {
-          var resultset = apiResult.metadata.resultset;
-          resultset.offset = (counter * resultset.limit) + 1;
-          counter++;
-          successCallback(JSON.stringify(apiResult));
-        };
+          };
+          var counter = 0;
+          var stubRequest = function(options, successCallback, errorCallback) {
+            var resultset = apiResult.metadata.resultset;
+            resultset.offset = (counter * resultset.limit) + 1;
+            counter++;
+            successCallback(JSON.stringify(apiResult));
+          };
 
-        sinon.stub(httpClient, 'request', stubRequest);
-        var client = getInstance();
+          sinon.stub(httpClient, 'request', stubRequest);
+          var client = getInstance();
 
-        // act
-        client.query();
+          // act
+          client.query();
 
-        // assert
-        assert.equal(timer.setTimeout.getCall(0).args[1] > 1000, true);
+          // assert
+          assert.equal(timer.setTimeout.getCall(0).args[1] > 1000, true);
+        });
+
       });
     });
 
     describe('emit event', function(){
-
-      it('should emit done when there is no more data to query', function(){
+      it('emit done when there is no more data to query', function(){
         // arrange
         var apiResult = {
           'metadata': {
@@ -367,7 +369,7 @@ describe('CdoClient', function(){
         assert.equal(spy.calledWith('done', expectedResults.results), true);
       });
 
-      it('should handle empty result {} from api and emit done', function(){
+      it('handle empty result {} from api and emit done', function(){
         // arrange
         var apiResult = {};
         var stubRequest = function(options, successCallback, errorCallback) {
@@ -384,11 +386,10 @@ describe('CdoClient', function(){
         // assert
         assert.equal(spy.calledWith('done', null), true);
       });
-
     });
 
-    describe('result callback', function(){
-      it('should return api result', function(){
+    describe('resultCallback', function(){
+      it('contains result from query in result argument', function(){
         // arrange
         var expectedResults = {
           "results": [
@@ -424,8 +425,8 @@ describe('CdoClient', function(){
       });
     });
 
-    describe('api token', function(){
-      it('should read api-token from file', function(){
+    describe('api token functionality', function(){
+      it('read api-token from file', function(){
         // arrange
         sinon.stub(httpClient, 'request');
         var client = getInstance();
@@ -439,31 +440,33 @@ describe('CdoClient', function(){
         assert.equal(call.args[1], 'utf8');
       });
 
-      it('should write helpful message when there is no api-token file', function(){
-        // arrange
-        sinon.stub(httpClient, 'request');
-        fs.readFileSync.restore();
-        sinon.stub(fs, 'readFileSync', function(filepath, encoding){
-          throw new Error('ENOENT, no such file or directory');
+      describe('cannot find api-token file', function(){
+        it('write helpful message when there is no api-token file', function(){
+          // arrange
+          sinon.stub(httpClient, 'request');
+          fs.readFileSync.restore();
+          sinon.stub(fs, 'readFileSync', function(filepath, encoding){
+            throw new Error('ENOENT, no such file or directory');
+          });
+
+          var expectedMessage = "Please make sure there is an apitoken.txt file (containing your API token) in the executing directory.";
+
+          var client = getInstance();
+
+          // act
+          client.query();
+
+          // assert
+          assert.equal(logger.info.called, true);
+          assert.equal(logger.info.calledWith(expectedMessage), true);
         });
-
-        var expectedMessage = "Please make sure there is an apitoken.txt file (containing your API token) in the executing directory.";
-
-        var client = getInstance();
-
-        // act
-        client.query();
-
-        // assert
-        assert.equal(logger.info.called, true);
-        assert.equal(logger.info.calledWith(expectedMessage), true);
       });
     });
 
   });
 
   describe('#getEventEmitter()', function(){
-    it('should return eventEmitter instance', function(){
+    it('return eventEmitter instance', function(){
       var client = getInstance();
 
       assert.notEqual(client.getEventEmitter(), null);
@@ -481,7 +484,7 @@ describe('CdoClient', function(){
       assert.notEqual(apiClient, null);
     });
 
-    it('should use the factory arguments and pass to httpClient', function() {
+    it('use the factory arguments and pass them to httpClient', function() {
       // arrange
       sinon.stub(httpClient, 'request');
 

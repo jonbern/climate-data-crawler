@@ -13,19 +13,13 @@ describe('CdoApiClient', function(){
       var client = CdoApiClient.createInstance('CITY:BR000023', 'GHCNDMS',
         'MNTM', '1983-01-01', '1983-12-31');
 
-      var eventEmitter = client.getEventEmitter();
-
-      // act
+      // act + assert
       client.query(function(result){
-        console.log(result);
-      });
-
-      // assert
-      eventEmitter.on('done', function(result){
         console.log(result);
         assert.notEqual(result, null);
         done();
       });
+
     });
 
     it('should raise done even also when api only returns an empty object', function(done){
@@ -35,13 +29,8 @@ describe('CdoApiClient', function(){
       var client = CdoApiClient.createInstance('CITY:BR000023', 'GHCNDMS',
         'MNTM', '2000-01-01', '2000-12-31');
 
-      var eventEmitter = client.getEventEmitter();
-
-      // act
-      client.query();
-
-      // assert
-      eventEmitter.on('done', function(result){
+      // act + assert
+      client.query(function(result){
         assert.equal(result, null);
         done();
       });

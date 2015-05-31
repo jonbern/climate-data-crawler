@@ -2,7 +2,6 @@
 var sinon = require('sinon');
 var assert = require('assert');
 var CdoApiClient = require('../../cdoApiClient');
-var events = require('events');
 var Logger = require('../../helpers/logger');
 var HttpClient = require('../../helpers/httpClient');
 var Timer = require('../../helpers/timer');
@@ -10,7 +9,6 @@ var fs = require("fs");
 
 describe('CdoClient', function(){
 
-  var eventEmitter;
   var logger;
   var httpClient;
   var timer;
@@ -23,8 +21,6 @@ describe('CdoClient', function(){
   var endDate;
 
   beforeEach(function(){
-    eventEmitter = new events.EventEmitter();
-
     dataset = 'GHCND';
     datatypeid = 'PRCP';
     locationId = 'CITY:AS000002';
@@ -55,9 +51,6 @@ describe('CdoClient', function(){
     if (typeof logger.error.restore == 'function'){
       logger.error.restore();
     }
-    if (typeof eventEmitter.emit.restore == 'function'){
-      eventEmitter.emit.restore();
-    }
     if (typeof timer.setTimeout.restore == 'function'){
       timer.setTimeout.restore();
     }
@@ -68,7 +61,7 @@ describe('CdoClient', function(){
 
   var getInstance = function(){
     return new CdoApiClient(
-      httpClient, logger, eventEmitter, timer,
+      httpClient, logger, timer,
       locationId, dataset, datatypeid, startDate, endDate);
   };
 
@@ -311,83 +304,6 @@ describe('CdoClient', function(){
       });
     });
 
-    describe('emit event', function(){
-      it('emit done when there is no more data to query', function(){
-        // arrange
-        var apiResult = {
-          'metadata': {
-            'resultset': {
-              'limit': 25,
-              'count': 15,
-              'offset': 1
-            }
-          }
-        };
-        var stubRequest = function(options, successCallback, errorCallback) {
-          successCallback(JSON.stringify(apiResult));
-        };
-
-        sinon.stub(httpClient, 'request', stubRequest);
-        sinon.spy(eventEmitter, 'emit');
-
-        var client = getInstance();
-
-        // act
-        client.query();
-
-        // assert
-        assert.equal(eventEmitter.emit.calledWith('done'), true);
-      });
-
-      it('event should contain api results', function(){
-        // arrange
-        var expectedResults = {
-          "results": [
-            {"example": [1,2,3] }, { "example": [4,5,6]}
-          ],
-          'metadata': {
-            'resultset': {
-              'limit': 25,
-              'count': 2,
-              'offset': 1
-            }
-          }
-        };
-
-        var stubRequest = function(options, successCallback, errorCallback) {
-          successCallback(JSON.stringify(expectedResults));
-        };
-        sinon.stub(httpClient, 'request', stubRequest);
-        var spy = sinon.spy(eventEmitter, 'emit');
-
-        var client = getInstance();
-
-        // act
-        client.query();
-
-        // assert
-        assert.equal(spy.calledWith('done', expectedResults.results), true);
-      });
-
-      it('handle empty result {} from api and emit done', function(){
-        // arrange
-        var apiResult = {};
-        var stubRequest = function(options, successCallback, errorCallback) {
-          successCallback(JSON.stringify(apiResult));
-        };
-        sinon.stub(httpClient, 'request', stubRequest);
-        var spy = sinon.spy(eventEmitter, 'emit');
-
-        var client = getInstance();
-
-        // act
-        client.query();
-
-        // assert
-        assert.equal(spy.calledWith('done', null), true);
-      });
-    });
-
     describe('resultCallback', function(){
       it('contains result from query in result argument', function(){
         // arrange
@@ -463,15 +379,6 @@ describe('CdoClient', function(){
       });
     });
 
-  });
-
-  describe('#getEventEmitter()', function(){
-    it('return eventEmitter instance', function(){
-      var client = getInstance();
-
-      assert.notEqual(client.getEventEmitter(), null);
-      assert.equal(client.getEventEmitter(), eventEmitter);
-    })
   });
 
   describe('#createInstance()', function(){

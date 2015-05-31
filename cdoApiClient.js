@@ -2,7 +2,7 @@
 var fs = require('fs');
 var Timer = require('./helpers/timer');
 
-function CdoApiClient(httpClient, logger, eventEmitter, timer,
+function CdoApiClient(httpClient, logger, timer,
                       locationid, dataset, datatypeid, startDate, endDate) {
   var queryResults;
   var onResults = function(){};
@@ -53,7 +53,6 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
       var nextRequestOffset = resultset.offset + resultset.limit;
 
       if (nextRequestOffset > resultset.count) {
-        eventEmitter.emit('done', queryResults);
         onResults(queryResults);
       }
       else {
@@ -64,7 +63,6 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
     }
     else {
       if (Object.keys(resultJson).length === 0){
-        eventEmitter.emit('done', null);
         onResults(null);
       }
     }
@@ -80,22 +78,16 @@ function CdoApiClient(httpClient, logger, eventEmitter, timer,
 
     queryNext();
   };
-
-  this.getEventEmitter = function(){
-    return eventEmitter;
-  };
 }
 
 CdoApiClient.createInstance = function(locationid, dataset, datatypeid, startDate, endDate,
-                                       httpClient, logger, eventEmitter, timer){
-  var events = require('events');
+                                       httpClient, logger, timer){
   var HttpClient = require('./helpers/httpClient');
   var Logger = require('./helpers/logger');
 
   return new CdoApiClient(
     httpClient ? httpClient : new HttpClient(),
     logger ? logger : new Logger(),
-    eventEmitter ? eventEmitter : new events.EventEmitter(),
     timer ? timer : new Timer(),
     locationid, dataset, datatypeid, startDate, endDate);
 };

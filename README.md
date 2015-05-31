@@ -22,6 +22,9 @@ for the queries.
 Represents a data probing query against a single location and data set/data type within a specified probing interval (yearly).
 It will return data from the most recent year which has data for the specified location and data set/data type. 
 
+It also tags all data records with the corresponding locationId to make it easier to create aggregated results
+ based on locationIds and not only stationIds.
+
 ### CdoApiClient
 CdoApiClient represents the lowest level of abstraction for querying CDO web services. CdoApiClient abstracts
 away the data paging behavior of the CDO web services, which makes it challenging to query large record sets 
@@ -96,8 +99,8 @@ Using the CLI, results will automatically be stored to disk (./data folder).
 JS:
 ```
 var fs = require('fs');
-var CdoDataCrawler = require('./cdoDataCrawler');
-var DataProbingBounds = require('./dataProbingBounds');
+var CdoDataCrawler = require('./node_modules/climate-data-crawler/cdoDataCrawler');
+var DataProbingBounds = require('./node_modules/climate-data-crawler/dataProbingBounds');
 
 var dataset = 'GHCNDMS'; // Global Historical Climatology Network-Monthly
 var datatype = 'MNTM'; // monthly mean temperature
@@ -116,7 +119,7 @@ crawler.run(function(results, locationsNoData){
 ### CdoDataProbingQuery
 This example will query the Brisbane location for the most recent monthly mean temperatures between 2014 and 2010: 
 ```
-var cdoDataQueryFactory = require('./cdoDataProbingQuery');
+var cdoDataQueryFactory = require('./node_modules/climate-data-crawler/cdoDataProbingQuery');
 
 var startYear = 2014;
 var stopYear = 2010;
@@ -132,10 +135,23 @@ dataQuery.run(function(queryResult){
 ### CdoApiClient
 Use the CdoApiClient to get Brisbane's monthly mean temperatures between 01 January 2014 and 31 December 2014:
 ```
-var CdoApiClient = require('./cdoApiClient');
+var CdoApiClient = require('./node_modules/climate-data-crawler/cdoApiClient');
 
-var client = CdoApiClient.createInstance('CITY:AS000002', 'GHCNDMS', 'MNTM', '2014-01-01', '2014-12-31');
-    
+var locationId = 'CITY:AS000002';
+var dataset = 'GHCNDMS';
+var startDate = '2014-01-01';
+var endDate = '2014-12-31';
+var datatypeid = 'MNTM';
+
+var queryPath = '/cdo-web/api/v2/data?datasetid=' + dataset
++ '&locationid=' + locationId
++ '&startdate=' + startDate
++ '&enddate=' + endDate
++ '&datatypeid=' + datatypeid
++ '&limit=1000';
+
+var client = CdoApiClient.createInstance(queryPath);
+   
 client.query(function(result){
     console.log(result);
 });
@@ -153,8 +169,6 @@ var errorCallback = function(error){
 
 crawler.run(successCallback, errorCallback);
 ```
-
-New in version 1.3, the CLI implements improved error handling which let's you retry a query in case it fails.
 
 ## Resources
 

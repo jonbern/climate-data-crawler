@@ -37,11 +37,21 @@ function CdoDataProbingQuery(
   };
 
   var queryNext = function(){
-    var cdoApiClient = cdoApiClientFactory.createInstance(
-      locationId, dataset, datatypeid,
-      queryYear + '-01-01', queryYear + '-12-31');
-
+    var queryPath = generateQueryPath();
+    var cdoApiClient = cdoApiClientFactory.createInstance(queryPath);
     cdoApiClient.query(onApiCallComplete, onError);
+  };
+
+  var generateQueryPath = function(){
+    var startDate = queryYear + '-01-01';
+    var endDate = queryYear + '-12-31';
+
+    return '/cdo-web/api/v2/data?datasetid=' + dataset
+          + '&locationid=' + locationId
+          + '&startdate=' + startDate
+          + '&enddate=' + endDate
+          + '&datatypeid=' + datatypeid
+          + '&limit=1000';
   };
 
   // privileged functions

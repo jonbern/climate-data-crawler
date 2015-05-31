@@ -10,8 +10,20 @@ describe('CdoApiClient', function(){
       // arrange
       this.timeout(120 * 1000);
 
-      var client = CdoApiClient.createInstance('CITY:BR000023', 'GHCNDMS',
-        'MNTM', '1983-01-01', '1983-12-31');
+      var locationId = 'CITY:BR000023';
+      var dataset = 'GHCNDMS';
+      var startDate = '1983-01-01';
+      var endDate = '1983-12-31';
+      var datatypeid = 'MNTM';
+
+      var queryPath = '/cdo-web/api/v2/data?datasetid=' + dataset
+        + '&locationid=' + locationId
+        + '&startdate=' + startDate
+        + '&enddate=' + endDate
+        + '&datatypeid=' + datatypeid
+        + '&limit=1000';
+
+      var client = CdoApiClient.createInstance(queryPath);
 
       // act + assert
       client.query(function(result){
@@ -26,8 +38,20 @@ describe('CdoApiClient', function(){
       // arrange
       this.timeout(120 * 1000);
 
-      var client = CdoApiClient.createInstance('CITY:BR000023', 'GHCNDMS',
-        'MNTM', '2000-01-01', '2000-12-31');
+      var locationId = 'CITY:BR000023';
+      var dataset = 'GHCNDMS';
+      var startDate = '2000-01-01';
+      var endDate = '2000-12-31';
+      var datatypeid = 'MNTM';
+
+      var queryPath = '/cdo-web/api/v2/data?datasetid=' + dataset
+        + '&locationid=' + locationId
+        + '&startdate=' + startDate
+        + '&enddate=' + endDate
+        + '&datatypeid=' + datatypeid
+        + '&limit=1000';
+
+      var client = CdoApiClient.createInstance(queryPath);
 
       // act + assert
       client.query(function(result){

@@ -19,6 +19,8 @@ describe('CdoClient', function(){
   var locationId;
   var startDate;
   var endDate;
+  var queryPath;
+
 
   beforeEach(function(){
     dataset = 'GHCND';
@@ -26,6 +28,13 @@ describe('CdoClient', function(){
     locationId = 'CITY:AS000002';
     startDate = '2012-01-01';
     endDate = '2012-06-01';
+
+    queryPath = '/cdo-web/api/v2/data?datasetid=' + dataset
+      + '&locationid=' + locationId
+      + '&startdate=' + startDate
+      + '&enddate=' + endDate
+      + '&datatypeid=' + datatypeid
+      + '&limit=1000';
 
     logger = new Logger();
     sinon.stub(logger, 'error');
@@ -61,113 +70,48 @@ describe('CdoClient', function(){
 
   var getInstance = function(){
     return new CdoApiClient(
-      httpClient, logger, timer,
-      locationId, dataset, datatypeid, startDate, endDate);
+      httpClient, logger, timer, queryPath);
   };
 
   describe('#invoke', function() {
-    it('use dataset value from constructor arguments', function() {
+    it('use queryPath from constructor and append offset=1', function() {
       // arrange
-      dataset = "mydataset";
-
       sinon.stub(httpClient, 'request');
       var client = getInstance();
 
-      var expected = '/cdo-web/api/v2/data?'
-        + 'datasetid=mydataset'
-        + '&locationid=CITY:AS000002'
-        + '&startdate=2012-01-01'
-        + '&enddate=2012-06-01'
-        + '&datatypeid=PRCP'
-        + '&limit=1000'
-        + '&offset=1';
+      var expectedQueryPath = queryPath + '&offset=1';
 
       // act
       client.query();
 
       // assert
-      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
+      var callArgument =
+        httpClient.request.getCall(0).args[0].path;
+      assert.equal(callArgument, expectedQueryPath);
     });
 
-    it('use locationid value from constructor argument', function() {
+    it('invoke httpClient with correct options', function(){
       // arrange
-      locationId = "AO:MYCITY";
+      var stubRequest = function(options, successCallback, errorCallback) {
+        successCallback(JSON.stringify({}));
+      };
+      sinon.stub(httpClient, 'request', stubRequest);
 
-      sinon.stub(httpClient, 'request');
       var client = getInstance();
 
-      var expected = '/cdo-web/api/v2/data?'
-        + 'datasetid=GHCND'
-        + '&locationid=AO:MYCITY'
-        + '&startdate=2012-01-01'
-        + '&enddate=2012-06-01'
-        + '&datatypeid=PRCP'
-        + '&limit=1000'
-        + '&offset=1';
+      var expectedOptions = {
+        host : 'www.ncdc.noaa.gov',
+        port : 80,
+        path : '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000&offset=1',
+        method : 'GET',
+        headers: {'token': apiKey}
+      };
 
       // act
       client.query();
 
       // assert
-      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
-    });
-
-    it('use enddate from constructor parameter', function() {
-      // arrange
-      endDate = "23-10-1983";
-
-      sinon.stub(httpClient, 'request');
-      var client = getInstance();
-
-      var expected = '/cdo-web/api/v2/data?'
-        + 'datasetid=GHCND'
-        + '&locationid=CITY:AS000002'
-        + '&startdate=2012-01-01'
-        + '&enddate=23-10-1983'
-        + '&datatypeid=PRCP'
-        + '&limit=1000'
-        + '&offset=1';
-
-      // act
-      client.query();
-
-      // assert
-      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
-    });
-
-    it('use startdate from constructor argument', function() {
-      // arrange
-      startDate = "23-10-1983";
-
-      sinon.stub(httpClient, 'request');
-      var client = getInstance();
-
-      var expected = '/cdo-web/api/v2/data?'
-        + 'datasetid=GHCND'
-        + '&locationid=CITY:AS000002'
-        + '&startdate=23-10-1983'
-        + '&enddate=2012-06-01'
-        + '&datatypeid=PRCP'
-        + '&limit=1000'
-        + '&offset=1';
-
-      // act
-      client.query();
-
-      // assert
-      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
-    });
-
-    it('use httpClient to make http request', function(){
-      // arrange
-      sinon.stub(httpClient, 'request');
-      var client = getInstance();
-
-      // act
-      client.query();
-
-      // assert
-      assert.equal(httpClient.request.called, true);
+      assert.equal(httpClient.request.calledWith(expectedOptions), true);
     });
 
     describe('error handling', function(){
@@ -195,31 +139,6 @@ describe('CdoClient', function(){
         assert.equal(wasCalled, true);
         assert.equal(callArguments[0], expectedError);
       })
-    });
-
-
-    it('use httpClient with correct options', function(){
-      // arrange
-      var stubRequest = function(options, successCallback, errorCallback) {
-        successCallback(JSON.stringify({}));
-      };
-      sinon.stub(httpClient, 'request', stubRequest);
-
-      var client = getInstance();
-
-      var expectedOptions = {
-        host : 'www.ncdc.noaa.gov',
-        port : 80,
-        path : '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000&offset=1',
-        method : 'GET',
-        headers: {'token': apiKey}
-      };
-
-      // act
-      client.query();
-
-      // assert
-      assert.equal(httpClient.request.calledWith(expectedOptions), true);
     });
 
     describe("data paging functionality", function(){
@@ -382,7 +301,7 @@ describe('CdoClient', function(){
   });
 
   describe('#createInstance()', function(){
-    it('return not null', function(){
+    it('not return null', function(){
       // arrange
       var apiClient = CdoApiClient.createInstance(
         dataset, datatypeid, locationId, startDate, endDate);
@@ -391,29 +310,29 @@ describe('CdoClient', function(){
       assert.notEqual(apiClient, null);
     });
 
-    it('use the factory arguments and pass them to httpClient', function() {
+    it('use the factory method\'s queryPath argument and it to httpClient on invocation', function() {
       // arrange
       sinon.stub(httpClient, 'request');
 
-      var client = CdoApiClient.createInstance(
-        locationId, dataset, datatypeid, startDate, endDate,
-        httpClient);
+      var client = CdoApiClient.createInstance(queryPath, httpClient);
 
-      var expected = '/cdo-web/api/v2/data?'
-        + 'datasetid=GHCND'
-        + '&locationid=CITY:AS000002'
-        + '&startdate=2012-01-01'
-        + '&enddate=2012-06-01'
-        + '&datatypeid=PRCP'
-        + '&limit=1000'
-        + '&offset=1';
+      var expectedQueryPath = '/cdo-web/api/v2/data?'
+          + 'datasetid=GHCND'
+          + '&locationid=CITY:AS000002'
+          + '&startdate=2012-01-01'
+          + '&enddate=2012-06-01'
+          + '&datatypeid=PRCP'
+          + '&limit=1000'
+          + '&offset=1';
 
       // act
       client.query();
 
       // assert
       assert.equal(httpClient.request.called, true);
-      assert.equal(httpClient.request.getCall(0).args[0].path, expected);
+
+      var callArgument = httpClient.request.getCall(0).args[0].path;
+      assert.equal(callArgument, expectedQueryPath);
     });
 
   });

@@ -80,6 +80,14 @@ describe('CdoDataProbingQuery', function(){
   describe('#run', function(){
     it('call apiClientFactory with expected parameters', function() {
       // arrange
+
+      var expectedQueryPath = '/cdo-web/api/v2/data?datasetid=' + dataset
+        + '&locationid=' + locationId
+        + '&startdate=' + startDate
+        + '&enddate=' + endDate
+        + '&datatypeid=' + datatypeid
+        + '&limit=1000';
+
       sinon.stub(api, 'query');
       sinon.spy(apiClientFactory, 'createInstance');
 
@@ -89,9 +97,8 @@ describe('CdoDataProbingQuery', function(){
       query.run();
 
       // assert
-     var isCalledWithParameters = apiClientFactory.createInstance.calledWith(
-        locationId, dataset, datatypeid, startDate, endDate);
-
+     var isCalledWithParameters =
+       apiClientFactory.createInstance.calledWith(expectedQueryPath);
       assert.equal(isCalledWithParameters, true);
     });
 
@@ -185,9 +192,15 @@ describe('CdoDataProbingQuery', function(){
           var expectedStartDate = currentQueryYear + '-01-01';
           var expectedEndDate = currentQueryYear + '-12-31';
 
-          var isCalledWithParameters = apiClientFactory.createInstance.calledWith(
-            locationId, dataset, datatypeid, expectedStartDate, expectedEndDate);
+          var expectedQueryPath = '/cdo-web/api/v2/data?datasetid=' + dataset
+            + '&locationid=' + locationId
+            + '&startdate=' + expectedStartDate
+            + '&enddate=' + expectedEndDate
+            + '&datatypeid=' + datatypeid
+            + '&limit=1000';
 
+          var isCalledWithParameters =
+            apiClientFactory.createInstance.calledWith(expectedQueryPath);
           assert.equal(isCalledWithParameters, true);
         }
       });

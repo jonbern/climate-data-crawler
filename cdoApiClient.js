@@ -2,19 +2,10 @@
 var fs = require('fs');
 var Timer = require('./helpers/timer');
 
-function CdoApiClient(httpClient, logger, timer,
-                      locationid, dataset, datatypeid, startDate, endDate) {
+function CdoApiClient(httpClient, logger, timer, queryPath) {
   var queryResults;
   var onResults = function(){};
   var onError = function(){};
-
-  var queryPath =
-    '/cdo-web/api/v2/data?datasetid=' + dataset
-    + '&locationid=' + locationid
-    + '&startdate=' + startDate
-    + '&enddate=' + endDate
-    + '&datatypeid=' + datatypeid
-    + '&limit=1000';
 
   function queryNext(offset) {
     if (!offset){
@@ -80,8 +71,7 @@ function CdoApiClient(httpClient, logger, timer,
   };
 }
 
-CdoApiClient.createInstance = function(locationid, dataset, datatypeid, startDate, endDate,
-                                       httpClient, logger, timer){
+CdoApiClient.createInstance = function(queryPath, httpClient, logger, timer){
   var HttpClient = require('./helpers/httpClient');
   var Logger = require('./helpers/logger');
 
@@ -89,7 +79,7 @@ CdoApiClient.createInstance = function(locationid, dataset, datatypeid, startDat
     httpClient ? httpClient : new HttpClient(),
     logger ? logger : new Logger(),
     timer ? timer : new Timer(),
-    locationid, dataset, datatypeid, startDate, endDate);
+    queryPath);
 };
 
 module.exports = CdoApiClient;

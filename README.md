@@ -177,7 +177,7 @@ GHCND - Global Historical Climatology Network-Daily data set:
 
 * PRCP - Precipitation (tenths of mm)
 
-GHCNDMS - Global Historical Climatology Network-Monthly data set: 
+GHCNDMS - Global Historical Climatology Network-Monthly Summaries data set: 
 
 * MNTM - Monthly mean temperature
 * MMNT - Monthly Mean minimum temperature
@@ -196,3 +196,5 @@ GHCNDMS - Global Historical Climatology Network-Monthly data set:
 [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
 
 [Wikipedia: Global Historical Climatology Network](http://en.wikipedia.org/wiki/Global_Historical_Climatology_Network)
+
+[GHCND Global Historical Climatology Network)-Monthly Summaries documentation](http://www1.ncdc.noaa.gov/pub/data/cdo/documentation/GHCNDMS_documentation.pdf)

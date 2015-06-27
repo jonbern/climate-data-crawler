@@ -157,7 +157,7 @@ client.query(function(result){
 });
 ```
 
-Retrieve details of all registered stations
+Retrieve details of all registered stations:
 ```
 var fs = require('fs');
 var CdoApiClient = require('./node_modules/climate-data-crawler/cdoApiClient');

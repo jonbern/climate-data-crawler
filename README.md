@@ -133,7 +133,7 @@ dataQuery.run(function(queryResult){
 ```
 
 ### CdoApiClient
-Use the CdoApiClient to get Brisbane's monthly mean temperatures between 01 January 2014 and 31 December 2014:
+Get Brisbane's monthly mean temperatures between 01 January 2014 and 31 December 2014:
 ```
 var CdoApiClient = require('./node_modules/climate-data-crawler/cdoApiClient');
 
@@ -157,6 +157,19 @@ client.query(function(result){
 });
 ```
 
+Retrieve details of all registered stations
+```
+var fs = require('fs');
+var CdoApiClient = require('./node_modules/climate-data-crawler/cdoApiClient');
+
+var queryPath = '/cdo-web/api/v2/stations?limit=1000';
+var client = CdoApiClient.createInstance(queryPath);
+
+client.query(function(result){
+  console.log(result);
+  fs.appendFileSync('./stations.json', JSON.stringify(result) + '\r\n');
+});
+```
 ## Error handling
 
 All three components have support for defining an error callback to handle errors.

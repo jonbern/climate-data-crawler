@@ -7,25 +7,15 @@ describe('HttpClient', function(){
 
     it('query api using http', function(done){
       var options = {
-        host : 'www.ncdc.noaa.gov',
+        host : 'www.bt.no',
         port : 80,
-        path : '/cdo-web/api/v2/locations/CITY:BR000023',
-        method : 'GET',
-        headers: {'token': 'xdZVZowcEuqclhVhBdziSjGXgHUVKHTD'}
-      };
-
-      var expected = {
-        "id": "CITY:BR000023",
-        "name": "Rio de Janeiro, BR",
-        "datacoverage": 1,
-        "mindate": "1938-01-01",
-        "maxdate": "1999-12-31"
+        method : 'GET'
       };
 
       var client = new HttpClient();
 
       client.request(options, function(result){
-        assert.equal(result, JSON.stringify(expected));
+        assert.equal(!!result, true);
         done();
       });
     });
@@ -35,8 +25,7 @@ describe('HttpClient', function(){
         host : 'www.not.a.valid.hostname',
         port : 80,
         path : '/undefined',
-        method : 'GET',
-        headers: {'token': 'xdZVZowcEuqclhVhBdziSjGXgHUVKHTD'}
+        method : 'GET'
       };
 
       var client = new HttpClient();

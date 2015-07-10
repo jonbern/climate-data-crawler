@@ -6,8 +6,11 @@ function HttpClient(){
   this.request = function(options, successCallback, errorCallback){
     var request = http.request(options, function(response) {
       if (response.statusCode != 200){
-        errorCallback('Http status code: '
-        + response.statusCode + ': ' + response.statusMessage);
+        console.log(response.statusCode);
+        if (errorCallback){
+          errorCallback('Http status code: '
+            + response.statusCode + ': ' + response.statusMessage);
+        }
       }
 
       var body = '';
@@ -27,7 +30,9 @@ function HttpClient(){
     });
 
     request.on('error', function(error){
-      errorCallback(error.message);
+      if (errorCallback){
+        errorCallback(error.message);
+      }
     });
 
     request.end();

@@ -7,7 +7,6 @@ var Logger = require('../../helpers/logger');
 var HttpClient = require('../../helpers/httpClient');
 var events = require('events');
 var Timer = require('../../helpers/timer');
-var fs = require('fs');
 
 describe('CdoDataProbingQuery', function(){
 
@@ -37,7 +36,7 @@ describe('CdoDataProbingQuery', function(){
     sinon.stub(httpClient, 'request');
 
     timer = new Timer();
-    sinon.stub(timer, 'setTimeout', function(callback, delay){
+    sinon.stub(timer, 'setTimeout', function(callback){
       callback();
     });
 
@@ -119,7 +118,22 @@ describe('CdoDataProbingQuery', function(){
       describe('results', function(){
         it('invoke onQueryCompleteCallback with api results and append locationId', function(){
           // arrange
-          var resultFromApi = JSON.parse(fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'}));
+          var resultFromApi = [
+            {
+              "station": "GHCND:BR000083743",
+              "value": 268,
+              "attributes": "19,6",
+              "datatype": "MNTM",
+              "date": "2014-01-01T00:00:00"
+            },
+            {
+              "station": "GHCND:BR000083743",
+              "value": 278,
+              "attributes": "16,7",
+              "datatype": "MNTM",
+              "date": "2014-02-01T00:00:00"
+            }
+          ];
           var results = null;
 
           var temp = resultFromApi;
@@ -148,7 +162,22 @@ describe('CdoDataProbingQuery', function(){
       describe('onQueryCompleteCallback not given', function(){
         it('not throw exception', function(){
           // arrange
-          var runResults = JSON.parse(fs.readFileSync('test-resources/dataset.json', {encoding: 'utf8'}));
+          var runResults = [
+            {
+              "station": "GHCND:BR000083743",
+              "value": 268,
+              "attributes": "19,6",
+              "datatype": "MNTM",
+              "date": "2014-01-01T00:00:00"
+            },
+            {
+              "station": "GHCND:BR000083743",
+              "value": 278,
+              "attributes": "16,7",
+              "datatype": "MNTM",
+              "date": "2014-02-01T00:00:00"
+            }
+          ]
 
           sinon.stub(api, 'query', function(onApiCallComplete){
             onApiCallComplete(runResults);

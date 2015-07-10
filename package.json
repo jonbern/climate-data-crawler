@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./tests/*"
   },
   "repository": {
     "type": "git",
@@ -26,8 +26,10 @@
   "homepage": "https://github.com/jonbern/climate-data-crawler",
   "dependencies": {
     "command-line-args": "^0.5.9",
-    "mocha": "^2.2.1",
-    "readline-sync": "^1.2.15",
-    "sinon": "^1.14.1"
+    "readline-sync": "^1.2.15"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "sinon": "^1.15.4"
   }
 }

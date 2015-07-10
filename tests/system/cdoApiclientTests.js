@@ -34,14 +34,14 @@ describe('CdoApiClient', function(){
 
     });
 
-    it('should raise done even also when api only returns an empty object', function(done){
+    it('should raise done event also when api only returns an empty object', function(done){
       // arrange
       this.timeout(120 * 1000);
 
       var locationId = 'CITY:BR000023';
       var dataset = 'GHCNDMS';
-      var startDate = '2000-01-01';
-      var endDate = '2000-12-31';
+      var startDate = '1900-01-01';
+      var endDate = '1900-12-31';
       var datatypeid = 'MNTM';
 
       var queryPath = '/cdo-web/api/v2/data?datasetid=' + dataset

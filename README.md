@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jonbern/climate-data-crawler.svg?branch=master)](https://travis-ci.org/jonbern/climate-data-crawler)
+
 # Climate Data Crawler - CDO (Climate Data Online) data crawler
 Climate Data Crawler is a library and node.js CLI (Command Line Interface) for querying 
 [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2) 

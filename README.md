@@ -52,7 +52,7 @@ cd climate-data-crawler
 
 ### Install dependencies
 
-Install npm dependencies
+Install npm dependencies by running the command below:
 ```
 npm install
 ```
@@ -84,8 +84,8 @@ You can also install Climate Data Crawler as a npm package.
 ```
 npm install climate-data-crawler --save
 ```
-This is particularly useful if you need to incorporate Climate Data Crawler into your own project, for instance if you need to build
-custom crawling strategies built on top of CdoDataProbingQuery or CdoApiClient.
+This is particularly useful if you need to incorporate Climate Data Crawler into your own project, for instance if you want to build
+custom crawling strategies built on top of CdoDataProbingQuery or using CdoApiClient to create custom queries.
 
 ## Usage
 

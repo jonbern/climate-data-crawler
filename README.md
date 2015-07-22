@@ -1,17 +1,17 @@
 [![Build Status](https://travis-ci.org/jonbern/climate-data-crawler.svg?branch=master)](https://travis-ci.org/jonbern/climate-data-crawler)
 
 # Climate Data Crawler - CDO (Climate Data Online) data crawler
-Climate Data Crawler is a library and node.js CLI (Command Line Interface) for querying 
+Climate Data Crawler is a node.js library and CLI (Command Line Interface) for querying 
 [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2) 
-at various levels of abstraction.
+at different levels of abstraction.
 
 NCDC's CDO web services offer current- and historical climatic data from data sets with data
 from the US and around the world. However, using only a basic REST client to query these web services
-is challenging and time consuming, especially if you need to query a lot of data or get data from many locations. 
-Climate Data Crawler lets you query a lot of data in an easy way without having to deal with the details of the CDO Web Services.
+is hard and time consuming, especially if you need to query a lot of data or get data from many locations. 
+Climate Data Crawler lets you query a lot of data in an easy way, without having to deal with the details of the CDO Web Services.
 
 ## Components
-Climate Data Crawler consists of three main components which lets you query CDO web services at different levels of abstraction.
+Climate Data Crawler consists of three main components.
 
 ### CdoDataCrawler
 Implements the highest level of abstractions and will let you query a collection 

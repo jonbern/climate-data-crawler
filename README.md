@@ -3,16 +3,15 @@
 # Climate Data Crawler - CDO (Climate Data Online) data crawler
 Climate Data Crawler is a library and node.js CLI (Command Line Interface) for querying 
 [NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2) 
-at a higher level of abstraction.
+at various levels of abstraction.
 
-NCDC's CDO web services offer current- and historical climatic data from various data sets with data
-from the US and around the world. The challenge with these web services is that they are very extensive 
-and it is hard to find out how to get the data you need. I created this crawler because I needed a 
-way to query a lot of data and felt that using the CDO web services directly was impractical. 
+NCDC's CDO web services offer current- and historical climatic data from data sets with data
+from the US and around the world. However, using only a basic REST client to query these web services
+is challenging and time consuming, especially if you need to query a lot of data or get data from many locations. 
+Climate Data Crawler lets you query a lot of data in an easy way without having to deal with the details of the CDO Web Services.
 
 ## Components
-Climate Data Crawler consists of three main components which lets you query CDO web
-services at varying levels of abstraction. 
+Climate Data Crawler consists of three main components which lets you query CDO web services at different levels of abstraction.
 
 ### CdoDataCrawler
 Implements the highest level of abstractions and will let you query a collection 
@@ -28,10 +27,9 @@ It also tags all data records with the corresponding locationId to make it easie
  based on locationIds and not only stationIds.
 
 ### CdoApiClient
-CdoApiClient represents the lowest level of abstraction for querying CDO web services. CdoApiClient abstracts
-away the data paging behavior of the CDO web services, which makes it challenging to query large record sets 
-programmatically. The CdoApiClient handles the paging for you by using multiple requests to page through
- data and return the complete result set when finished.
+CdoApiClient represents the lowest level of abstraction for querying CDO web services and is also the method which gives the
+most flexibility. You can basically query anything from the CDO web services using the CdoApiClient; It abstracts
+away the data paging behavior of the CDO web services, which makes it easy to query large data sets.
 
 ## Getting started
 

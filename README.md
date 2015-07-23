@@ -6,9 +6,10 @@ Climate Data Crawler is a node.js library and CLI (Command Line Interface) for q
 at different levels of abstraction.
 
 NCDC's CDO web services offer current- and historical climatic data from data sets with data
-from the US and around the world. However, using only a basic REST client to query these web services
-is hard and time consuming, especially if you need to query a lot of data or get data from many locations. 
-Climate Data Crawler lets you query a lot of data in an easy way, without having to deal with the details of the CDO Web Services.
+from the US and the rest of the world. Using a basic REST client to query these web services is fine as long as you only
+need some data, but when you need to query a lot of data or many locations, it quickly becomes a time consuming and 
+challenging task. This is where Climate Data Crawler helps; It allows you to easily setup queries and to run queries for 
+multiple locations. 
 
 ## Components
 Climate Data Crawler consists of three main components.

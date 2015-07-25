@@ -2,4 +2,4 @@ language: node_js
 node_js:
   - "0.12"
 before_script:
-  - "node travis_before_script.js"
+  - "echo $API_TOKEN > apitoken.txt"

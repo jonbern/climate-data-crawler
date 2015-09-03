@@ -64,6 +64,14 @@ You need to register with your e-mail address and afterwards you will be sent a 
 Once you have a valid CDO service token, you need to create an apitoken.txt file in the climate-data-crawler directory and paste in your token. 
 Climate Data Crawler uses this file to read your token so that you can query the CDO web services.
 
+### Download a list of locations to crawl
+Run the following command:
+```
+node getLocations.js
+```
+This will retrieve all locations classified as cities and store the result in a file called CITIES.json. 
+You can edit the query used in getLocations.js to query a different set of locations if desired.
+
 ### Run the crawler
 The example below will get the most recent data for the 100 first locations in CITIES.json using 2010 as 
 data probing stop year. 
@@ -72,10 +80,7 @@ node app.js --dataset GHCNDMS --datatype MNTM --locations 'CITIES.json'  --probi
 ```
 The example above makes the assumption you have a 'CITIES.json' file in your climate-data-crawler directory. 
 
-Use curl to get a list of locations to query. The example below will return the 1000 first cities in CDO: 
-```
-curl -H "token:<your-token>" "http://www.ncdc.noaa.gov/cdo-web/api/v2/locations?locationcategoryid=city&sortfield=name&limit=1000"
-```
+Results will be stored in ./data.
 
 ## npm package
 You can also install Climate Data Crawler as a npm package. 

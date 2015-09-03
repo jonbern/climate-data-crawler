@@ -64,7 +64,7 @@ You need to register with your e-mail address and afterwards you will be sent a 
 Once you have a valid CDO service token, you need to create an apitoken.txt file in the climate-data-crawler directory and paste in your token. 
 Climate Data Crawler uses this file to read your token so that you can query the CDO web services.
 
-### Download a list of locations to crawl
+### Download a list of locations to query
 Run the following command:
 ```
 node getLocations.js

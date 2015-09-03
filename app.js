@@ -37,8 +37,13 @@ var successCallback = function(results, locationsNoData){
   var filenameBase = options.dataset + '-' + options.datatype + '-offset-'
     + options.offset + '-count-' + options.count;
 
-  resultsWriter.write('data/' + filenameBase + '.json', results);
-  resultsWriter.write('data/' + filenameBase + '_nodata.json', locationsNoData);
+  var directory = 'data/';
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory);
+  }
+
+  resultsWriter.write(directory + filenameBase + '.json', results);
+  resultsWriter.write(directory + filenameBase + '_nodata.json', locationsNoData);
 };
 
 var errorCallback = function(error){
@@ -55,4 +60,3 @@ var crawler = CdoDataCrawler.createInstance(
   options.offset, options.count);
 
 crawler.run(successCallback, errorCallback);
-

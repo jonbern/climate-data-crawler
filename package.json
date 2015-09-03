@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "mocha": "^2.2.5",
+    "proxyquire": "^1.7.1",
     "sinon": "^1.15.4"
   }
 }

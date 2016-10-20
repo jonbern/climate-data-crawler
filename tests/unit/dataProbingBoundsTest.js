@@ -1,8 +1,20 @@
 "use strict";
 var assert = require('assert');
+var sinon = require('sinon');
 var DataProbingBounds = require('../../dataProbingBounds');
 
 describe('dataProbingBounds', function(){
+
+  var clock;
+
+  beforeEach(function() {
+    clock = sinon.useFakeTimers();
+    clock.now = '2015-01-01';
+  });
+
+  afterEach(function() {
+    clock = clock.restore();
+  });
 
   function getInstance(stopYear){
     return new DataProbingBounds(stopYear ? stopYear : 2000);

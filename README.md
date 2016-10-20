@@ -2,7 +2,7 @@
 
 # Climate Data Crawler - CDO (Climate Data Online) data crawler
 Climate Data Crawler is a node.js library and CLI (Command Line Interface) for querying
-[NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
+[NCDC's (National Climatic Data Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
 at different levels of abstraction.
 
 NCDC's CDO web services offer current- and historical climatic data from data sets with data
@@ -212,7 +212,7 @@ GHCNDMS - Global Historical Climatology Network-Monthly Summaries data set:
 ### Links
 [NCDC Climate Data Online](https://www.ncdc.noaa.gov/cdo-web)
 
-[NCDC's (National Climatic Date Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
+[NCDC's (National Climatic Data Center) CDO (Climate Data Online) web services v2](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
 
 [Wikipedia: Global Historical Climatology Network](http://en.wikipedia.org/wiki/Global_Historical_Climatology_Network)
 

@@ -1,10 +1,10 @@
 "use strict";
-var http = require("http");
+var https = require("https");
 
 function HttpClient(){
 
   this.request = function(options, successCallback, errorCallback){
-    var request = http.request(options, function(response) {
+    var request = https.request(options, function(response) {
       if (response.statusCode != 200){
         console.log(response.statusCode);
         if (errorCallback){

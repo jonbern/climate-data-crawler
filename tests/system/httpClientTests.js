@@ -7,8 +7,7 @@ describe('HttpClient', function(){
 
     it('query api using http', function(done){
       var options = {
-        host : 'www.bt.no',
-        port : 80,
+        host : 'www.google.com',
         method : 'GET'
       };
 
@@ -23,7 +22,6 @@ describe('HttpClient', function(){
     it('handle error, query error callback', function(done){
       var options = {
         host : 'www.not.a.valid.hostname',
-        port : 80,
         path : '/undefined',
         method : 'GET'
       };

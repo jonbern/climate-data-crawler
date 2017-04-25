@@ -15,7 +15,6 @@ function CdoApiClient(httpClient, logger, timer, queryPath) {
 
     var options = {
       host : 'www.ncdc.noaa.gov',
-      port : 80,
       path : queryPath + '&offset=' + offset,
       method : 'GET',
       headers: {'token': readApiToken()}

@@ -101,7 +101,6 @@ describe('CdoClient', function(){
 
       var expectedOptions = {
         host : 'www.ncdc.noaa.gov',
-        port : 80,
         path : '/cdo-web/api/v2/data?datasetid=GHCND&locationid=CITY:AS000002&startdate=2012-01-01&enddate=2012-06-01&datatypeid=PRCP&limit=1000&offset=1',
         method : 'GET',
         headers: {'token': apiKey}
